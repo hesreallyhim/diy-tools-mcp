@@ -1,0 +1,27 @@
+{
+  "name": "multiply_numbers",
+  "description": "Multiply two numbers together",
+  "language": "python",
+  "code": "def main(a, b):\n    return a * b",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "a": {
+        "type": "number",
+        "description": "First number"
+      },
+      "b": {
+        "type": "number",
+        "description": "Second number"
+      }
+    },
+    "required": [
+      "a",
+      "b"
+    ]
+  },
+  "returns": "The product of the two numbers",
+  "id": "10264f8d-23af-4f9c-8ae6-d1934320c38d",
+  "createdAt": "2025-07-26T07:41:55.041Z",
+  "updatedAt": "2025-07-26T07:41:55.042Z"
+}

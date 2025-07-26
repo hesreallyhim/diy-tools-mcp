@@ -39,21 +39,24 @@ async function testServer() {
     console.log('Initial tools:', initialTools.tools.map(t => t.name));
 
     // Add a new Python tool
-    const addResult = await client.callTool('add_tool', {
-      name: 'multiply_numbers',
-      description: 'Multiply two numbers together',
-      language: 'python',
-      code: `def main(a, b):
+    const addResult = await client.callTool({
+      name: 'add_tool',
+      arguments: {
+        name: 'multiply_numbers',
+        description: 'Multiply two numbers together',
+        language: 'python',
+        code: `def main(a, b):
     return a * b`,
-      parameters: {
-        type: 'object',
-        properties: {
-          a: { type: 'number', description: 'First number' },
-          b: { type: 'number', description: 'Second number' }
+        parameters: {
+          type: 'object',
+          properties: {
+            a: { type: 'number', description: 'First number' },
+            b: { type: 'number', description: 'Second number' }
+          },
+          required: ['a', 'b']
         },
-        required: ['a', 'b']
-      },
-      returns: 'The product of the two numbers'
+        returns: 'The product of the two numbers'
+      }
     });
     console.log('Add tool result:', addResult);
 
@@ -62,18 +65,23 @@ async function testServer() {
     console.log('Updated tools:', updatedTools.tools.map(t => t.name));
 
     // Test the new tool
-    const multiplyResult = await client.callTool('multiply_numbers', {
-      a: 5,
-      b: 7
+    const multiplyResult = await client.callTool({
+      name: 'multiply_numbers',
+      arguments: {
+        a: 5,
+        b: 7
+      }
     });
     console.log('Multiply result:', multiplyResult);
 
     // Add a JavaScript tool
-    const addJsResult = await client.callTool('add_tool', {
-      name: 'greet_user',
-      description: 'Generate a greeting message',
-      language: 'javascript',
-      code: `function main({ name, language = 'English' }) {
+    const addJsResult = await client.callTool({
+      name: 'add_tool',
+      arguments: {
+        name: 'greet_user',
+        description: 'Generate a greeting message',
+        language: 'javascript',
+        code: `function main({ name, language = 'English' }) {
   const greetings = {
     English: 'Hello',
     Spanish: 'Hola',
@@ -82,31 +90,38 @@ async function testServer() {
   const greeting = greetings[language] || greetings.English;
   return \`\${greeting}, \${name}!\`;
 }`,
-      parameters: {
-        type: 'object',
-        properties: {
-          name: { type: 'string', description: 'User name' },
-          language: { 
-            type: 'string', 
-            enum: ['English', 'Spanish', 'French'],
-            description: 'Language for greeting',
-            default: 'English'
-          }
-        },
-        required: ['name']
+        parameters: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', description: 'User name' },
+            language: { 
+              type: 'string', 
+              enum: ['English', 'Spanish', 'French'],
+              description: 'Language for greeting',
+              default: 'English'
+            }
+          },
+          required: ['name']
+        }
       }
     });
     console.log('Add JS tool result:', addJsResult);
 
     // Test the JS tool
-    const greetResult = await client.callTool('greet_user', {
-      name: 'Alice',
-      language: 'Spanish'
+    const greetResult = await client.callTool({
+      name: 'greet_user',
+      arguments: {
+        name: 'Alice',
+        language: 'Spanish'
+      }
     });
     console.log('Greet result:', greetResult);
 
     // List all custom tools
-    const listResult = await client.callTool('list_tools', {});
+    const listResult = await client.callTool({
+      name: 'list_tools',
+      arguments: {}
+    });
     console.log('All custom tools:', listResult);
 
     console.log('Test completed successfully!');

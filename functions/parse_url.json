@@ -1,0 +1,21 @@
+{
+  "name": "parse_url",
+  "description": "Parse a URL into its components",
+  "language": "javascript",
+  "code": "function main({ url }) {\n  try {\n    const parsed = new URL(url);\n    return {\n      protocol: parsed.protocol,\n      hostname: parsed.hostname,\n      port: parsed.port || 'default',\n      pathname: parsed.pathname,\n      search: parsed.search,\n      hash: parsed.hash\n    };\n  } catch (e) {\n    return { error: 'Invalid URL' };\n  }\n}",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "url": {
+        "type": "string",
+        "description": "URL to parse"
+      }
+    },
+    "required": [
+      "url"
+    ]
+  },
+  "id": "0c3da6cc-5e85-47b9-8e45-47149711c818",
+  "createdAt": "2025-07-26T07:42:27.653Z",
+  "updatedAt": "2025-07-26T07:42:27.653Z"
+}
