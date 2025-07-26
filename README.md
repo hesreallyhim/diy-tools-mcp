@@ -1,12 +1,12 @@
-# diy-tools-mcp
+# DIY Tools MCP Server
 
-The purpose of this Model Context Protocol (MCP) server is to allow users to write simple functions in whatever programming language is installed on their computer, expose them to the server along with specification of what tool functionality is expected by this function, and then the server will register that tool for itself and make it available to the client.
+A Model Context Protocol (MCP) server that allows you to create custom tools/functions at runtime in any programming language and expose them to Claude or other MCP clients.
 
-Before MCP, and with certain other frameworks, users could expose tools directly to the client or host application, just by defining a function. Because of MCP, most host applications use MCP to expose tools to the client, and the ability to write a straightforward tool definition and expose it manually does not seem to be supported, outside of DIY frameworks like LangChain, e.g.
+## Overview
 
-This is an MCP server that has one single tool to start with: `add_tool`. Users may invoke `add_tool` along with the specification of a function, which is written to a local file, and the server will validate the function, and then register it and add it as a new tool, and then submitted a `tools/listChanged` notification.
+The DIY Tools MCP server enables you to dynamically add custom tools without needing to write a full MCP server. Simply provide the function code, parameters schema, and the server handles the rest - validation, execution, persistence, and MCP protocol integration.
 
-It is written in TypeScript using the latest version of the MCP TypeScript SDK.
+This server bridges the gap between simple function definitions and the MCP protocol, making it easy to extend Claude's capabilities with custom tools written in Python, JavaScript, Bash, Ruby, or TypeScript.
 
 ## Features
 
@@ -121,7 +121,7 @@ The server provides three built-in tools:
 - **JavaScript** (`javascript` or `node`) - Requires Node.js
 - **Bash** (`bash`) - Requires Bash shell
 - **TypeScript** (`typescript`) - Transpiled and run as JavaScript
-- **Ruby** (`ruby`) - Coming soon
+- **Ruby** (`ruby`) - Requires Ruby
 
 ## Function Requirements
 
@@ -154,6 +154,16 @@ The server provides three built-in tools:
     # Parse JSON args if needed
     echo '{"result": "success"}'
   }
+  ```
+
+### Ruby Functions
+- Must define a `main` method that accepts keyword arguments
+- Should return JSON-serializable data
+- Example:
+  ```ruby
+  def main(name:, age:)
+    { greeting: "Hello #{name}, you are #{age} years old!" }
+  end
   ```
 
 ## Configuration

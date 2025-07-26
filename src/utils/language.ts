@@ -385,13 +385,114 @@ main "$ARGS"
   }
 }
 
+class RubyExecutor extends BaseExecutor {
+  getFileExtension(): string {
+    return 'rb';
+  }
+
+  async validate(code: string): Promise<ValidationResult> {
+    const filepath = await this.createTempFile(code, 'rb');
+    
+    try {
+      const { stderr, code: exitCode } = await this.runCommand(
+        'ruby',
+        ['-c', filepath]
+      );
+
+      if (exitCode !== 0) {
+        return {
+          valid: false,
+          errors: [stderr || 'Ruby syntax error']
+        };
+      }
+
+      return { valid: true };
+    } catch (error) {
+      return {
+        valid: false,
+        errors: [`Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`]
+      };
+    } finally {
+      await this.cleanupTempFile(filepath);
+    }
+  }
+
+  async execute(code: string, args: any): Promise<ExecutionResult> {
+    const wrappedCode = `
+require 'json'
+
+${code}
+
+begin
+  args = ARGV[0] ? JSON.parse(ARGV[0]) : {}
+  result = main(**args.transform_keys(&:to_sym))
+  puts JSON.generate(result)
+rescue => e
+  STDERR.puts JSON.generate({ error: e.message })
+  exit 1
+end
+`;
+
+    const filepath = await this.createTempFile(wrappedCode, 'rb');
+    const startTime = Date.now();
+
+    try {
+      const { stdout, stderr, code: exitCode } = await this.runCommand(
+        'ruby',
+        [filepath, JSON.stringify(args)]
+      );
+
+      const executionTime = Date.now() - startTime;
+
+      if (exitCode !== 0) {
+        let errorMessage = stderr;
+        try {
+          const errorJson = JSON.parse(stderr);
+          errorMessage = errorJson.error || stderr;
+        } catch {
+          // Use raw stderr if not JSON
+        }
+
+        return {
+          success: false,
+          error: errorMessage,
+          executionTime
+        };
+      }
+
+      try {
+        const output = JSON.parse(stdout);
+        return {
+          success: true,
+          output,
+          executionTime
+        };
+      } catch {
+        return {
+          success: true,
+          output: stdout.trim(),
+          executionTime
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: `Execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        executionTime: Date.now() - startTime
+      };
+    } finally {
+      await this.cleanupTempFile(filepath);
+    }
+  }
+}
+
 const executors: Record<SupportedLanguage, LanguageExecutor> = {
   python: new PythonExecutor(),
   javascript: new JavaScriptExecutor(),
   node: new JavaScriptExecutor(),
   typescript: new JavaScriptExecutor(), // TypeScript will be transpiled before execution
   bash: new BashExecutor(),
-  ruby: null as any // Placeholder - not implemented yet
+  ruby: new RubyExecutor()
 };
 
 export function getExecutor(language: SupportedLanguage): LanguageExecutor | null {
