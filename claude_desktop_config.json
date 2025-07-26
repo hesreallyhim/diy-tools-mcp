@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "diy-tools": {
+      "command": "node",
+      "args": [
+        "/path/to/diy-tools-mcp/dist/index.js"
+      ]
+    }
+  }
+}

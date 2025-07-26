@@ -1,0 +1,63 @@
+import { JSONSchema7 } from 'json-schema';
+
+export interface FunctionSpecification {
+  name: string;
+  description: string;
+  language: SupportedLanguage;
+  code: string;
+  parameters: JSONSchema7;
+  returns?: string;
+  dependencies?: string[];
+  timeout?: number; // in milliseconds
+}
+
+export type SupportedLanguage = 'python' | 'javascript' | 'typescript' | 'bash' | 'ruby' | 'node';
+
+export interface StoredFunction extends FunctionSpecification {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ExecutionResult {
+  success: boolean;
+  output?: any;
+  error?: string;
+  executionTime?: number;
+}
+
+export interface ValidationResult {
+  valid: boolean;
+  errors?: string[];
+}
+
+export interface LanguageExecutor {
+  validate(code: string): Promise<ValidationResult>;
+  execute(code: string, args: any): Promise<ExecutionResult>;
+  getFileExtension(): string;
+}
+
+export class ToolError extends Error {
+  constructor(message: string, public code: string) {
+    super(message);
+    this.name = 'ToolError';
+  }
+}
+
+export class ValidationError extends ToolError {
+  constructor(message: string) {
+    super(message, 'VALIDATION_ERROR');
+  }
+}
+
+export class ExecutionError extends ToolError {
+  constructor(message: string) {
+    super(message, 'EXECUTION_ERROR');
+  }
+}
+
+export class RegistrationError extends ToolError {
+  constructor(message: string) {
+    super(message, 'REGISTRATION_ERROR');
+  }
+}

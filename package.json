@@ -1,0 +1,40 @@
+{
+  "name": "diy-tools-mcp",
+  "version": "1.0.0",
+  "description": "MCP server that allows users to dynamically add custom tools/functions at runtime",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc && chmod +x dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "clean": "rm -rf dist",
+    "test": "jest",
+    "postinstall": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "tools",
+    "functions",
+    "dynamic"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "ajv": "^8.17.1",
+    "uuid": "^11.0.4"
+  },
+  "devDependencies": {
+    "@types/json-schema": "^7.0.15",
+    "@types/node": "^22.10.5",
+    "@types/uuid": "^10.0.0",
+    "jest": "^29.7.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
