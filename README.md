@@ -126,6 +126,7 @@ The server provides three built-in tools:
 ## Function Requirements
 
 ### Python Functions
+
 - Must define a `main` function that accepts keyword arguments
 - Should return JSON-serializable data
 - Example:
@@ -135,6 +136,7 @@ The server provides three built-in tools:
   ```
 
 ### JavaScript Functions
+
 - Must define a `main` function (regular or async)
 - Receives parameters as a single object
 - Example:
@@ -145,6 +147,7 @@ The server provides three built-in tools:
   ```
 
 ### Bash Functions
+
 - Must define a `main` function
 - Receives JSON arguments as first parameter
 - Should output JSON to stdout
@@ -157,6 +160,7 @@ The server provides three built-in tools:
   ```
 
 ### Ruby Functions
+
 - Must define a `main` method that accepts keyword arguments
 - Should return JSON-serializable data
 - Example:
@@ -169,26 +173,33 @@ The server provides three built-in tools:
 ## Configuration
 
 ### Timeout Settings
+
 You can specify a timeout for each function (in milliseconds):
+
 ```json
 {
-  "timeout": 5000  // 5 seconds
+  "timeout": 5000 // 5 seconds
 }
 ```
+
 Maximum timeout is 300000ms (5 minutes).
 
 ### Dependencies
+
 For Python functions, you can specify required packages:
+
 ```json
 {
   "dependencies": ["numpy", "pandas"]
 }
 ```
+
 Note: Automatic dependency installation is not yet implemented.
 
 ## Error Handling
 
 The server provides detailed error messages for:
+
 - Syntax errors in function code
 - Invalid parameter schemas
 - Runtime execution errors
@@ -198,6 +209,7 @@ The server provides detailed error messages for:
 ## Storage
 
 Functions are stored in the `functions/` directory as JSON files. Each file contains:
+
 - Function specification
 - Unique ID
 - Creation and update timestamps
@@ -225,9 +237,15 @@ npm run clean
 - Network and file system access depends on the language runtime
 - Consider running in a containerized environment for production use
 
+## Roadmap:
+
+- [ ] Allow users to write functions in a stand-alone file, as opposed to inline in the tool definition.
+- [ ] Add tool/resources to view function source code.
+
 ## Contributing
 
 Contributions are welcome! Please:
+
 1. Fork the repository
 2. Create a feature branch
 3. Add tests for new functionality

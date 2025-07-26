@@ -19,7 +19,7 @@
     "functions",
     "dynamic"
   ],
-  "author": "",
+  "author": "Really Him",
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
