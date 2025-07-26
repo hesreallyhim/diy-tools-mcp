@@ -73,9 +73,14 @@ export class ToolManager {
     this.registeredTools.delete(name);
 
     // Notify clients
-    this.server.notification({
-      method: 'tools/listChanged'
-    });
+    try {
+      this.server.notification({
+        method: 'tools/listChanged'
+      });
+    } catch (error) {
+      // Ignore notification errors (e.g., when server is not connected)
+      console.error('Failed to send tools/listChanged notification:', error);
+    }
 
     return true;
   }
@@ -238,9 +243,14 @@ export class ToolManager {
 
     if (notify) {
       // Notify clients about the change
-      this.server.notification({
-        method: 'tools/listChanged'
-      });
+      try {
+        this.server.notification({
+          method: 'tools/listChanged'
+        });
+      } catch (error) {
+        // Ignore notification errors (e.g., when server is not connected)
+        console.error('Failed to send tools/listChanged notification:', error);
+      }
     }
   }
 }

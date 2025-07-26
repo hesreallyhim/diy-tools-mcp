@@ -22,16 +22,22 @@ export class FunctionExecutor {
 
       // Execute the function with timeout
       const timeout = func.timeout || 30000; // Default 30 seconds
-      const executionPromise = executor.execute(func.code, args);
+      const startTime = Date.now();
       
+      let timeoutId: NodeJS.Timeout;
       const timeoutPromise = new Promise<ExecutionResult>((_, reject) => {
-        const timer = global.setTimeout(() => reject(new Error('Function execution timed out')), timeout);
+        timeoutId = setTimeout(() => reject(new Error('Function execution timed out')), timeout);
       });
 
       try {
-        const result = await Promise.race([executionPromise, timeoutPromise]);
+        const result = await Promise.race([
+          executor.execute(func.code, args),
+          timeoutPromise
+        ]);
+        clearTimeout(timeoutId!);
         return result;
       } catch (error) {
+        clearTimeout(timeoutId!);
         if (error instanceof Error && error.message === 'Function execution timed out') {
           return {
             success: false,
