@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/hesreallyhim-diy-tools-mcp-badge.png)](https://mseep.ai/app/hesreallyhim-diy-tools-mcp)
+
 # DIY Tools MCP Server
 
 A Model Context Protocol (MCP) server that allows you to create custom tools/functions at runtime in any programming language and expose them to Claude or other MCP clients.
