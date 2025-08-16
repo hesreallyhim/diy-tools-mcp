@@ -178,7 +178,8 @@ def main():
       
       expect(result.success).toBe(false);
       expect(result.error).toContain('timed out');
-      expect(result.executionTime).toBeGreaterThanOrEqual(500);
+      // Allow 1ms tolerance for timing precision
+      expect(result.executionTime).toBeGreaterThanOrEqual(499);
       expect(result.executionTime).toBeLessThan(2000);
     });
 
