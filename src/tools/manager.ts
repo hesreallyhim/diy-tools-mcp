@@ -8,6 +8,9 @@ import {
 import { FunctionStorage } from '../storage/functions.js';
 import { FunctionValidator } from './validator.js';
 import { FunctionExecutor } from './executor.js';
+import { existsSync, statSync } from 'fs';
+import { resolve, extname } from 'path';
+import { getExecutor } from '../utils/language.js';
 
 export class ToolManager {
   private storage: FunctionStorage;
@@ -37,6 +40,20 @@ export class ToolManager {
 
   async addTool(spec: FunctionSpecification): Promise<StoredFunction> {
     try {
+      // Validate mutual exclusivity
+      if (spec.code && spec.codePath) {
+        throw new RegistrationError('Cannot specify both code and codePath');
+      }
+      
+      if (!spec.code && !spec.codePath) {
+        throw new RegistrationError('Must specify either code or codePath');
+      }
+      
+      // Validate file path if provided
+      if (spec.codePath) {
+        await this.validateFilePath(spec.codePath, spec.language);
+      }
+      
       // Validate the function specification
       await this.validator.validate(spec);
 
@@ -45,7 +62,7 @@ export class ToolManager {
         throw new RegistrationError(`Tool with name "${spec.name}" already exists`);
       }
 
-      // Save to storage
+      // Save to storage (handles file copying)
       const storedFunction = await this.storage.save(spec);
 
       // Register the tool
@@ -128,7 +145,11 @@ export class ToolManager {
           },
           code: {
             type: 'string',
-            description: 'The function code. Must define a function named "main" that accepts parameters and returns a result'
+            description: 'The function code (inline). Must define a function named "main". Mutually exclusive with codePath'
+          },
+          codePath: {
+            type: 'string',
+            description: 'Path to file containing the function code. Mutually exclusive with code'
           },
           parameters: {
             type: 'object',
@@ -156,7 +177,11 @@ export class ToolManager {
             maximum: 300000
           }
         },
-        required: ['name', 'description', 'language', 'code', 'parameters']
+        required: ['name', 'description', 'language', 'parameters'],
+        oneOf: [
+          { required: ['code'] },
+          { required: ['codePath'] }
+        ]
       }
     });
 
@@ -235,6 +260,55 @@ export class ToolManager {
         }
         return result.output;
       }
+    }
+  }
+
+  private async validateFilePath(filePath: string, language: string): Promise<void> {
+    const resolvedPath = resolve(filePath);
+    
+    // Check file exists
+    if (!existsSync(resolvedPath)) {
+      throw new RegistrationError(`File not found: ${filePath}`);
+    }
+    
+    // Check it's a regular file (not directory, symlink, etc.)
+    const stats = statSync(resolvedPath);
+    if (!stats.isFile()) {
+      throw new RegistrationError(`Path is not a regular file: ${filePath}`);
+    }
+    
+    // Check file size (limit to 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (stats.size > maxSize) {
+      throw new RegistrationError(`File size exceeds 10MB limit: ${filePath}`);
+    }
+    
+    // Check file extension matches language
+    const ext = extname(resolvedPath).slice(1).toLowerCase();
+    const expectedExt = this.getLanguageExtension(language);
+    
+    if (ext !== expectedExt) {
+      throw new RegistrationError(
+        `File extension .${ext} doesn't match language ${language} (expected .${expectedExt})`
+      );
+    }
+  }
+  
+  private getLanguageExtension(language: string): string {
+    switch (language) {
+      case 'python':
+        return 'py';
+      case 'javascript':
+      case 'node':
+        return 'js';
+      case 'typescript':
+        return 'ts';
+      case 'bash':
+        return 'sh';
+      case 'ruby':
+        return 'rb';
+      default:
+        throw new RegistrationError(`Unsupported language: ${language}`);
     }
   }
 
