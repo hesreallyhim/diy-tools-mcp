@@ -9,7 +9,7 @@ const FUNCTION_CODE_DIR = join(process.cwd(), 'function-code');
 
 export class FunctionStorage {
   constructor() {
-    this.ensureDirectoriesExist();
+    // Directories will be created on first operation
   }
 
   private async ensureDirectoriesExist(): Promise<void> {

@@ -19,8 +19,20 @@ describe('ToolManager', () => {
     
     // Valid Python file
     await writeFile(pythonFile, `
+import json
+import sys
+
 def main():
     return {"status": "ok"}
+
+if __name__ == "__main__":
+    try:
+        args = json.loads(sys.argv[1]) if len(sys.argv) > 1 else {}
+        result = main(**args)
+        print(json.dumps(result))
+    except Exception as e:
+        print(json.dumps({"error": str(e)}), file=sys.stderr)
+        sys.exit(1)
 `);
 
     // Valid JS file
