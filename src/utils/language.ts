@@ -27,15 +27,26 @@ abstract class BaseExecutor implements LanguageExecutor {
     timeout: number = DEFAULT_TIMEOUT
   ): Promise<{ stdout: string; stderr: string; code: number }> {
     return new Promise((resolve, reject) => {
-      const proc = spawn(command, args);
+      const proc = spawn(command, args, {
+        // Detach from parent to prevent hanging
+        detached: false,
+        // Kill the process group when parent dies
+        killSignal: 'SIGKILL'
+      });
       let stdout = '';
       let stderr = '';
       let timedOut = false;
+      let finished = false;
 
       const timer = setTimeout(() => {
-        timedOut = true;
-        proc.kill('SIGTERM');
+        if (!finished) {
+          timedOut = true;
+          proc.kill('SIGKILL');
+        }
       }, timeout);
+
+      // Unref the timer so it doesn't keep the process alive
+      timer.unref();
 
       proc.stdout.on('data', (data) => {
         stdout += data.toString();
@@ -51,6 +62,7 @@ abstract class BaseExecutor implements LanguageExecutor {
       }
 
       proc.on('close', (code) => {
+        finished = true;
         clearTimeout(timer);
         if (timedOut) {
           reject(new Error('Execution timed out'));
@@ -60,9 +72,13 @@ abstract class BaseExecutor implements LanguageExecutor {
       });
 
       proc.on('error', (error) => {
+        finished = true;
         clearTimeout(timer);
         reject(error);
       });
+
+      // Ensure process is killed on exit
+      proc.unref();
     });
   }
 

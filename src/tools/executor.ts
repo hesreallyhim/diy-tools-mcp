@@ -71,6 +71,8 @@ export class FunctionExecutor {
     let timeoutId: NodeJS.Timeout;
     const timeoutPromise = new Promise<ExecutionResult>((_, reject) => {
       timeoutId = setTimeout(() => reject(new Error('Function execution timed out')), timeout);
+      // Unref the timer so it doesn't keep the process alive
+      timeoutId.unref();
     });
 
     try {
