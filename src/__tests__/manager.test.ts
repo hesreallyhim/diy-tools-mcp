@@ -319,4 +319,148 @@ def main(x):
       expect(removed).toBe(false);
     });
   });
+
+  describe('view_source', () => {
+    it('should be included in getTools', () => {
+      const tools = manager.getTools();
+      const viewSourceTool = tools.find(t => t.name === 'view_source');
+      
+      expect(viewSourceTool).toBeDefined();
+      expect(viewSourceTool?.description).toContain('View the source code');
+      expect(viewSourceTool?.inputSchema.properties).toHaveProperty('name');
+      expect(viewSourceTool?.inputSchema.properties).toHaveProperty('verbose');
+      expect(viewSourceTool?.inputSchema.required).toEqual(['name']);
+    });
+
+    it('should view inline function source (non-verbose)', async () => {
+      const spec: FunctionSpecification = {
+        name: 'inline_view_test',
+        description: 'Test viewing inline source',
+        language: 'python',
+        code: 'def main(x):\n    return x * 2',
+        parameters: {
+          type: 'object',
+          properties: {
+            x: { type: 'number' }
+          },
+          required: ['x']
+        }
+      };
+
+      await manager.addTool(spec);
+      const result = await manager.handleToolCall({
+        params: {
+          name: 'view_source',
+          arguments: { name: 'inline_view_test' }
+        }
+      });
+      
+      expect(result.success).toBe(true);
+      expect(result.name).toBe('inline_view_test');
+      expect(result.language).toBe('python');
+      expect(result.sourceCode).toBe('def main(x):\n    return x * 2');
+      expect(result.tool).toBeUndefined(); // Non-verbose shouldn't have full tool object
+    });
+
+    it('should view inline function source (verbose)', async () => {
+      const spec: FunctionSpecification = {
+        name: 'inline_verbose_test',
+        description: 'Test viewing inline source with verbose',
+        language: 'javascript',
+        code: 'function main(x) { return x + 1; }',
+        parameters: {
+          type: 'object',
+          properties: {
+            x: { type: 'number' }
+          },
+          required: ['x']
+        },
+        returns: 'The incremented value',
+        dependencies: ['lodash'],
+        timeout: 3000
+      };
+
+      await manager.addTool(spec);
+      const result = await manager.handleToolCall({
+        params: {
+          name: 'view_source',
+          arguments: { name: 'inline_verbose_test', verbose: true }
+        }
+      });
+      
+      expect(result.success).toBe(true);
+      expect(result.tool).toBeDefined();
+      expect(result.tool.name).toBe('inline_verbose_test');
+      expect(result.tool.description).toBe('Test viewing inline source with verbose');
+      expect(result.tool.language).toBe('javascript');
+      expect(result.tool.parameters).toEqual(spec.parameters);
+      expect(result.tool.returns).toBe('The incremented value');
+      expect(result.tool.dependencies).toEqual(['lodash']);
+      expect(result.tool.timeout).toBe(3000);
+      expect(result.tool.isFileBased).toBe(false);
+      expect(result.tool.sourceCode).toBe('function main(x) { return x + 1; }');
+      expect(result.tool.createdAt).toBeDefined();
+      expect(result.tool.updatedAt).toBeDefined();
+    });
+
+    it('should view file-based function source', async () => {
+      const spec: FunctionSpecification = {
+        name: 'file_view_test',
+        description: 'Test viewing file-based source',
+        language: 'python',
+        codePath: pythonFile,
+        parameters: { type: 'object', properties: {} }
+      };
+
+      await manager.addTool(spec);
+      const result = await manager.handleToolCall({
+        params: {
+          name: 'view_source',
+          arguments: { name: 'file_view_test' }
+        }
+      });
+      
+      expect(result.success).toBe(true);
+      expect(result.name).toBe('file_view_test');
+      expect(result.language).toBe('python');
+      expect(result.sourceCode).toContain('def main()');
+      expect(result.sourceCode).toContain('return {"status": "ok"}');
+    });
+
+    it('should view file-based function source (verbose)', async () => {
+      const spec: FunctionSpecification = {
+        name: 'file_verbose_test',
+        description: 'Test viewing file source with verbose',
+        language: 'javascript',
+        codePath: jsFile,
+        parameters: { type: 'object', properties: {} }
+      };
+
+      await manager.addTool(spec);
+      const result = await manager.handleToolCall({
+        params: {
+          name: 'view_source',
+          arguments: { name: 'file_verbose_test', verbose: true }
+        }
+      });
+      
+      expect(result.success).toBe(true);
+      expect(result.tool).toBeDefined();
+      expect(result.tool.isFileBased).toBe(true);
+      expect(result.tool.codePath).toContain('function-code');
+      expect(result.tool.sourceCode).toContain('function main(args)');
+    });
+
+    it('should return error for non-existent tool', async () => {
+      const result = await manager.handleToolCall({
+        params: {
+          name: 'view_source',
+          arguments: { name: 'does_not_exist' }
+        }
+      });
+      
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Tool "does_not_exist" not found');
+    });
+  });
 });

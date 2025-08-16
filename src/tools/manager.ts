@@ -211,6 +211,27 @@ export class ToolManager {
       }
     });
 
+    // Add view_source tool
+    tools.push({
+      name: 'view_source',
+      description: 'View the source code of a registered custom tool',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            description: 'The name of the tool to view'
+          },
+          verbose: {
+            type: 'boolean',
+            description: 'Include full metadata in addition to source code',
+            default: false
+          }
+        },
+        required: ['name']
+      }
+    });
+
     return tools;
   }
 
@@ -250,6 +271,48 @@ export class ToolManager {
           createdAt: func.createdAt
         }));
         return { tools };
+      }
+
+      case 'view_source': {
+        const { name: toolName, verbose = false } = args as { name: string; verbose?: boolean };
+        const tool = this.registeredTools.get(toolName);
+        
+        if (!tool) {
+          return {
+            success: false,
+            error: `Tool "${toolName}" not found`
+          };
+        }
+        
+        // Load the source code
+        const sourceCode = await this.storage.loadFunctionCode(tool);
+        
+        if (verbose) {
+          return {
+            success: true,
+            tool: {
+              name: tool.name,
+              description: tool.description,
+              language: tool.language,
+              parameters: tool.parameters,
+              returns: tool.returns,
+              dependencies: tool.dependencies,
+              timeout: tool.timeout,
+              isFileBased: !!tool.codePath,
+              codePath: tool.codePath,
+              createdAt: tool.createdAt,
+              updatedAt: tool.updatedAt,
+              sourceCode
+            }
+          };
+        } else {
+          return {
+            success: true,
+            name: tool.name,
+            language: tool.language,
+            sourceCode
+          };
+        }
       }
 
       default: {
