@@ -239,8 +239,19 @@ npm run clean
 
 ## Roadmap:
 
+### In Progress (Critical Path)
 - [ ] Allow users to write functions in a stand-alone file, as opposed to inline in the tool definition.
 - [ ] Add tool/resources to view function source code.
+- [ ] Enforce single `main` function entry point with comprehensive validation
+
+### Future Enhancements
+- [ ] Configurable entry points (use any function name instead of requiring `main`)
+- [ ] Support for multiple entry points per file (share code between tools)
+- [ ] File watching and hot-reload for development workflow
+- [ ] Dependency resolution for local imports
+- [ ] Version tracking and rollback capabilities
+- [ ] Streaming output for long-running functions
+- [ ] Function composition and chaining
 
 ## Contributing
 
