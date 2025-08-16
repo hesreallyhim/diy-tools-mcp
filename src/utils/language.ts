@@ -16,6 +16,9 @@ abstract class BaseExecutor implements LanguageExecutor {
   abstract validate(code: string): Promise<ValidationResult>;
   abstract execute(code: string, args: any): Promise<ExecutionResult>;
   abstract getFileExtension(): string;
+  
+  // Optional optimized file execution
+  async executeFile?(filepath: string, args: any): Promise<ExecutionResult>;
 
   protected async runCommand(
     command: string, 
@@ -82,6 +85,55 @@ abstract class BaseExecutor implements LanguageExecutor {
 class PythonExecutor extends BaseExecutor {
   getFileExtension(): string {
     return 'py';
+  }
+
+  // Optimized file execution - run the file directly without creating temp file
+  async executeFile(filepath: string, args: any): Promise<ExecutionResult> {
+    const startTime = Date.now();
+    
+    try {
+      const { stdout, stderr, code: exitCode } = await this.runCommand(
+        'python3',
+        [filepath, JSON.stringify(args)]
+      );
+
+      if (exitCode !== 0) {
+        let error = 'Function execution failed';
+        try {
+          const errorData = JSON.parse(stderr);
+          error = errorData.error || stderr;
+        } catch {
+          error = stderr || 'Unknown error';
+        }
+        
+        return {
+          success: false,
+          error,
+          executionTime: Date.now() - startTime
+        };
+      }
+
+      try {
+        const result = JSON.parse(stdout);
+        return {
+          success: true,
+          output: result,
+          executionTime: Date.now() - startTime
+        };
+      } catch (parseError) {
+        return {
+          success: false,
+          error: `Failed to parse result: ${stdout}`,
+          executionTime: Date.now() - startTime
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        executionTime: Date.now() - startTime
+      };
+    }
   }
 
   async validate(code: string): Promise<ValidationResult> {
@@ -184,6 +236,88 @@ if __name__ == "__main__":
 class JavaScriptExecutor extends BaseExecutor {
   getFileExtension(): string {
     return 'js';
+  }
+
+  // Optimized file execution
+  async executeFile(filepath: string, args: any): Promise<ExecutionResult> {
+    const startTime = Date.now();
+    
+    // Create a wrapper script that loads the file and executes it
+    const wrapperCode = `
+const args = JSON.parse(process.argv[2] || '{}');
+const module = require('${filepath}');
+const main = module.main || module.default || module;
+
+if (typeof main !== 'function') {
+  console.error(JSON.stringify({ error: 'No main function found' }));
+  process.exit(1);
+}
+
+try {
+  const result = main(args);
+  if (result instanceof Promise) {
+    result.then(res => {
+      console.log(JSON.stringify(res));
+    }).catch(err => {
+      console.error(JSON.stringify({ error: err.message || err.toString() }));
+      process.exit(1);
+    });
+  } else {
+    console.log(JSON.stringify(result));
+  }
+} catch (err) {
+  console.error(JSON.stringify({ error: err.message || err.toString() }));
+  process.exit(1);
+}
+`;
+    
+    const wrapperPath = await this.createTempFile(wrapperCode, 'js');
+    
+    try {
+      const { stdout, stderr, code: exitCode } = await this.runCommand(
+        'node',
+        [wrapperPath, JSON.stringify(args)]
+      );
+
+      if (exitCode !== 0) {
+        let error = 'Execution failed';
+        try {
+          const errorData = JSON.parse(stderr);
+          error = errorData.error || stderr;
+        } catch {
+          error = stderr || 'Unknown error';
+        }
+        
+        return {
+          success: false,
+          error,
+          executionTime: Date.now() - startTime
+        };
+      }
+
+      try {
+        const result = JSON.parse(stdout);
+        return {
+          success: true,
+          output: result,
+          executionTime: Date.now() - startTime
+        };
+      } catch {
+        return {
+          success: true,
+          output: stdout.trim(),
+          executionTime: Date.now() - startTime
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        executionTime: Date.now() - startTime
+      };
+    } finally {
+      await this.cleanupTempFile(wrapperPath);
+    }
   }
 
   async validate(code: string): Promise<ValidationResult> {
