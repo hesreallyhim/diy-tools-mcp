@@ -130,7 +130,7 @@ export class FunctionValidator {
     const validate = ajv.compile(schema);
     
     if (!validate(args)) {
-      const errors = validate.errors?.map(err => {
+      const errors = validate.errors?.map((err: any) => {
         const path = err.instancePath || 'root';
         return `${path}: ${err.message}`;
       }).join(', ');
