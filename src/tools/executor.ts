@@ -1,4 +1,4 @@
-import { StoredFunction, ExecutionResult, ExecutionError } from '../types/index.js';
+import { StoredFunction, ExecutionResult, ExecutionError, isInlineFunction, isFileBasedFunction } from '../types/index.js';
 import { getExecutor } from '../utils/language.js';
 import { FunctionValidator } from './validator.js';
 
@@ -20,6 +20,18 @@ export class FunctionExecutor {
         throw new ExecutionError(`No executor available for language: ${func.language}`);
       }
 
+      // Get the code to execute
+      let codeToExecute: string;
+      if (isInlineFunction(func)) {
+        codeToExecute = func.code!;
+      } else if (isFileBasedFunction(func)) {
+        // For file-based functions, we'll need to read the file
+        // This will be implemented in the next ticket
+        throw new ExecutionError('File-based function execution not yet implemented');
+      } else {
+        throw new ExecutionError('Function must have either code or codePath');
+      }
+
       // Execute the function with timeout
       const timeout = func.timeout || 30000; // Default 30 seconds
       const startTime = Date.now();
@@ -31,7 +43,7 @@ export class FunctionExecutor {
 
       try {
         const result = await Promise.race([
-          executor.execute(func.code, args),
+          executor.execute(codeToExecute, args),
           timeoutPromise
         ]);
         clearTimeout(timeoutId!);

@@ -1,6 +1,6 @@
 import { default as Ajv } from 'ajv';
 import { JSONSchema7 } from 'json-schema';
-import { FunctionSpecification, ValidationError } from '../types/index.js';
+import { FunctionSpecification, ValidationError, isFileBasedFunction, isInlineFunction } from '../types/index.js';
 import { getExecutor, isSupportedLanguage } from '../utils/language.js';
 
 const AjvConstructor = Ajv as unknown as typeof Ajv.default;
@@ -29,8 +29,33 @@ export class FunctionValidator {
       throw new ValidationError(`Unsupported language: ${spec.language}. Supported languages are: python, javascript, typescript, bash, ruby, node`);
     }
 
-    if (!spec.code || typeof spec.code !== 'string') {
-      throw new ValidationError('Function code is required and must be a string');
+    // Validate code/codePath mutual exclusivity
+    if (!isInlineFunction(spec) && !isFileBasedFunction(spec)) {
+      if (spec.code && spec.codePath) {
+        throw new ValidationError('Function cannot have both code and codePath - use exactly one');
+      } else {
+        throw new ValidationError('Function must have either code (inline) or codePath (file-based)');
+      }
+    }
+    
+    // Validate code field for inline functions
+    if (isInlineFunction(spec)) {
+      if (!spec.code || typeof spec.code !== 'string') {
+        throw new ValidationError('Inline function code is required and must be a string');
+      }
+    }
+    
+    // Validate codePath field for file-based functions
+    if (isFileBasedFunction(spec)) {
+      if (!spec.codePath || typeof spec.codePath !== 'string') {
+        throw new ValidationError('File-based function codePath is required and must be a string');
+      }
+      
+      // Validate file extension matches language
+      const expectedExt = this.getExpectedExtension(spec.language);
+      if (!spec.codePath.endsWith(expectedExt)) {
+        throw new ValidationError(`File path must have ${expectedExt} extension for ${spec.language} language`);
+      }
     }
 
     if (!spec.parameters || typeof spec.parameters !== 'object') {
@@ -40,17 +65,19 @@ export class FunctionValidator {
     // Validate JSON Schema
     this.validateJSONSchema(spec.parameters);
 
-    // Validate the code syntax
-    const executor = getExecutor(spec.language);
-    if (!executor) {
-      throw new ValidationError(`No executor available for language: ${spec.language}`);
-    }
+    // Validate the code syntax (only for inline functions)
+    if (isInlineFunction(spec)) {
+      const executor = getExecutor(spec.language);
+      if (!executor) {
+        throw new ValidationError(`No executor available for language: ${spec.language}`);
+      }
 
-    const validationResult = await executor.validate(spec.code);
-    if (!validationResult.valid) {
-      throw new ValidationError(
-        `Code validation failed: ${validationResult.errors?.join(', ') || 'Unknown error'}`
-      );
+      const validationResult = await executor.validate(spec.code!);
+      if (!validationResult.valid) {
+        throw new ValidationError(
+          `Code validation failed: ${validationResult.errors?.join(', ') || 'Unknown error'}`
+        );
+      }
     }
 
     // Validate timeout if provided
@@ -62,6 +89,24 @@ export class FunctionValidator {
       if (spec.timeout > 300000) { // 5 minutes max
         throw new ValidationError('Timeout cannot exceed 5 minutes (300000ms)');
       }
+    }
+  }
+
+  private getExpectedExtension(language: string): string {
+    switch (language) {
+      case 'python':
+        return '.py';
+      case 'javascript':
+      case 'node':
+        return '.js';
+      case 'typescript':
+        return '.ts';
+      case 'bash':
+        return '.sh';
+      case 'ruby':
+        return '.rb';
+      default:
+        return '';
     }
   }
 

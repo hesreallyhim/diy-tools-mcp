@@ -4,7 +4,8 @@ export interface FunctionSpecification {
   name: string;
   description: string;
   language: SupportedLanguage;
-  code: string;
+  code?: string;              // Now optional - for inline code
+  codePath?: string;          // New field - path to code file
   parameters: JSONSchema7;
   returns?: string;
   dependencies?: string[];
@@ -12,6 +13,15 @@ export interface FunctionSpecification {
 }
 
 export type SupportedLanguage = 'python' | 'javascript' | 'typescript' | 'bash' | 'ruby' | 'node';
+
+// Type guards for function types
+export function isFileBasedFunction(spec: FunctionSpecification): boolean {
+  return !!spec.codePath && !spec.code;
+}
+
+export function isInlineFunction(spec: FunctionSpecification): boolean {
+  return !!spec.code && !spec.codePath;
+}
 
 export interface StoredFunction extends FunctionSpecification {
   id: string;
