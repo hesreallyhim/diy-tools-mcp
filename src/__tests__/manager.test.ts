@@ -17,7 +17,7 @@ describe('ToolManager', () => {
     // Create test directory and files
     await mkdir(testDir, { recursive: true });
     
-    // Valid Python file
+    // Valid Python file with proper main function
     await writeFile(pythonFile, `
 import json
 import sys
@@ -104,7 +104,7 @@ module.exports = { main };
         };
 
         await expect(manager.addTool(spec)).rejects.toThrow(
-          'File not found'
+          'Cannot read file'
         );
       });
 
@@ -118,7 +118,7 @@ module.exports = { main };
         };
 
         await expect(manager.addTool(spec)).rejects.toThrow(
-          "doesn't match language"
+          "Invalid file extension"
         );
       });
 

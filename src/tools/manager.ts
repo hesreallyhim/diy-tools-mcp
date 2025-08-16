@@ -8,9 +8,7 @@ import {
 import { FunctionStorage } from '../storage/functions.js';
 import { FunctionValidator } from './validator.js';
 import { FunctionExecutor } from './executor.js';
-import { existsSync, statSync } from 'fs';
-import { resolve, extname } from 'path';
-import { getExecutor } from '../utils/language.js';
+import { SecurityValidator } from '../utils/security.js';
 
 export class ToolManager {
   private storage: FunctionStorage;
@@ -49,9 +47,9 @@ export class ToolManager {
         throw new RegistrationError('Must specify either code or codePath');
       }
       
-      // Validate file path if provided
+      // Validate file path if provided using enhanced security validation
       if (spec.codePath) {
-        await this.validateFilePath(spec.codePath, spec.language);
+        await SecurityValidator.validateFilePath(spec.codePath, spec.language);
       }
       
       // Validate the function specification
@@ -326,54 +324,6 @@ export class ToolManager {
     }
   }
 
-  private async validateFilePath(filePath: string, language: string): Promise<void> {
-    const resolvedPath = resolve(filePath);
-    
-    // Check file exists
-    if (!existsSync(resolvedPath)) {
-      throw new RegistrationError(`File not found: ${filePath}`);
-    }
-    
-    // Check it's a regular file (not directory, symlink, etc.)
-    const stats = statSync(resolvedPath);
-    if (!stats.isFile()) {
-      throw new RegistrationError(`Path is not a regular file: ${filePath}`);
-    }
-    
-    // Check file size (limit to 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    if (stats.size > maxSize) {
-      throw new RegistrationError(`File size exceeds 10MB limit: ${filePath}`);
-    }
-    
-    // Check file extension matches language
-    const ext = extname(resolvedPath).slice(1).toLowerCase();
-    const expectedExt = this.getLanguageExtension(language);
-    
-    if (ext !== expectedExt) {
-      throw new RegistrationError(
-        `File extension .${ext} doesn't match language ${language} (expected .${expectedExt})`
-      );
-    }
-  }
-  
-  private getLanguageExtension(language: string): string {
-    switch (language) {
-      case 'python':
-        return 'py';
-      case 'javascript':
-      case 'node':
-        return 'js';
-      case 'typescript':
-        return 'ts';
-      case 'bash':
-        return 'sh';
-      case 'ruby':
-        return 'rb';
-      default:
-        throw new RegistrationError(`Unsupported language: ${language}`);
-    }
-  }
 
   private async registerTool(func: StoredFunction, notify: boolean = true): Promise<void> {
     this.registeredTools.set(func.name, func);
