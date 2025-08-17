@@ -23,11 +23,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/really-him/diy-tools-mcp.git"
+    "url": "git+https://github.com/hesrealllyhim/diy-tools-mcp.git"
   },
-  "homepage": "https://github.com/really-him/diy-tools-mcp#readme",
+  "homepage": "https://github.com/hesrealllyhim/diy-tools-mcp#readme",
   "bugs": {
-    "url": "https://github.com/really-him/diy-tools-mcp/issues"
+    "url": "https://github.com/hesrealllyhim/diy-tools-mcp/issues"
   },
   "keywords": [
     "mcp",
