@@ -14,12 +14,12 @@ import { TIMEOUTS } from '../constants.js';
 const TEMP_DIR = '/tmp';
 
 abstract class BaseExecutor implements LanguageExecutor {
-  abstract validate(code: string): Promise<ValidationResult>;
-  abstract execute(code: string, args: FunctionArgs): Promise<ExecutionResult>;
+  abstract validate(code: string, entryPoint?: string): Promise<ValidationResult>;
+  abstract execute(code: string, args: FunctionArgs, entryPoint?: string): Promise<ExecutionResult>;
   abstract getFileExtension(): string;
   
   // Optional optimized file execution
-  async executeFile?(filepath: string, args: FunctionArgs): Promise<ExecutionResult>;
+  async executeFile?(filepath: string, args: FunctionArgs, entryPoint?: string): Promise<ExecutionResult>;
 
   protected async runCommand(
     command: string, 
@@ -105,7 +105,7 @@ class PythonExecutor extends BaseExecutor {
   }
 
   // Optimized file execution - run the file directly without creating temp file
-  async executeFile(filepath: string, args: FunctionArgs): Promise<ExecutionResult> {
+  async executeFile(filepath: string, args: FunctionArgs, entryPoint: string = 'main'): Promise<ExecutionResult> {
     const startTime = Date.now();
     
     try {
@@ -153,7 +153,7 @@ class PythonExecutor extends BaseExecutor {
     }
   }
 
-  async validate(code: string): Promise<ValidationResult> {
+  async validate(code: string, entryPoint: string = 'main'): Promise<ValidationResult> {
     const filepath = await this.createTempFile(code, 'py');
     
     try {
@@ -180,7 +180,7 @@ class PythonExecutor extends BaseExecutor {
     }
   }
 
-  async execute(code: string, args: FunctionArgs): Promise<ExecutionResult> {
+  async execute(code: string, args: FunctionArgs, entryPoint: string = 'main'): Promise<ExecutionResult> {
     // Check if the code already has the wrapper (for file-based functions)
     const hasWrapper = code.includes('if __name__ == "__main__":') && 
                       code.includes('json.loads(sys.argv[1])');
@@ -194,8 +194,20 @@ ${code}
 if __name__ == "__main__":
     try:
         args = json.loads(sys.argv[1]) if len(sys.argv) > 1 else {}
-        result = main(**args)
+        # Try to find the entry point function
+        if '${entryPoint}' in locals():
+            entry_func = locals()['${entryPoint}']
+        elif '${entryPoint}' in globals():
+            entry_func = globals()['${entryPoint}']
+        else:
+            # For simple functions defined at module level
+            entry_func = ${entryPoint}
+        
+        result = entry_func(**args)
         print(json.dumps(result))
+    except NameError:
+        print(json.dumps({"error": f"Function '${entryPoint}' not found"}), file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
         print(json.dumps({"error": str(e)}), file=sys.stderr)
         sys.exit(1)
@@ -260,22 +272,22 @@ class JavaScriptExecutor extends BaseExecutor {
   }
 
   // Optimized file execution
-  async executeFile(filepath: string, args: FunctionArgs): Promise<ExecutionResult> {
+  async executeFile(filepath: string, args: FunctionArgs, entryPoint: string = 'main'): Promise<ExecutionResult> {
     const startTime = Date.now();
     
     // Create a wrapper script that loads the file and executes it
     const wrapperCode = `
 const args = JSON.parse(process.argv[2] || '{}');
 const module = require('${filepath}');
-const main = module.main || module.default || module;
+const entryFunc = module['${entryPoint}'] || module.${entryPoint} || (module.default && module.default['${entryPoint}']);
 
-if (typeof main !== 'function') {
-  console.error(JSON.stringify({ error: 'No main function found' }));
+if (typeof entryFunc !== 'function') {
+  console.error(JSON.stringify({ error: 'Function "${entryPoint}" not found' }));
   process.exit(1);
 }
 
 try {
-  const result = main(args);
+  const result = entryFunc(args);
   if (result instanceof Promise) {
     result.then(res => {
       console.log(JSON.stringify(res));
@@ -341,13 +353,13 @@ try {
     }
   }
 
-  async validate(code: string): Promise<ValidationResult> {
+  async validate(code: string, entryPoint: string = 'main'): Promise<ValidationResult> {
     const wrappedCode = `
 ${code}
 
-// Validate that main function exists
-if (typeof main !== 'function') {
-  throw new Error('Function "main" is not defined');
+// Validate that entry point function exists
+if (typeof ${entryPoint} !== 'function') {
+  throw new Error('Function "${entryPoint}" is not defined');
 }
 `;
 
@@ -377,26 +389,28 @@ if (typeof main !== 'function') {
     }
   }
 
-  async execute(code: string, args: FunctionArgs): Promise<ExecutionResult> {
+  async execute(code: string, args: FunctionArgs, entryPoint: string = 'main'): Promise<ExecutionResult> {
     const wrappedCode = `
 ${code}
 
-// Handle CommonJS exports
-let mainFunc;
-if (typeof main !== 'undefined' && typeof main === 'function') {
-  mainFunc = main;
+// Handle CommonJS exports and find entry point
+let entryFunc;
+if (typeof ${entryPoint} !== 'undefined' && typeof ${entryPoint} === 'function') {
+  entryFunc = ${entryPoint};
 } else if (typeof module !== 'undefined' && module.exports) {
-  if (typeof module.exports.main === 'function') {
-    mainFunc = module.exports.main;
-  } else if (typeof module.exports === 'function') {
-    mainFunc = module.exports;
+  if (typeof module.exports['${entryPoint}'] === 'function') {
+    entryFunc = module.exports['${entryPoint}'];
+  } else if (typeof module.exports.${entryPoint} === 'function') {
+    entryFunc = module.exports.${entryPoint};
+  } else if (typeof module.exports === 'function' && '${entryPoint}' === 'main') {
+    entryFunc = module.exports;
   }
-} else if (typeof exports !== 'undefined' && typeof exports.main === 'function') {
-  mainFunc = exports.main;
+} else if (typeof exports !== 'undefined' && typeof exports['${entryPoint}'] === 'function') {
+  entryFunc = exports['${entryPoint}'];
 }
 
-if (!mainFunc) {
-  console.error(JSON.stringify({ error: 'No main function found' }));
+if (!entryFunc) {
+  console.error(JSON.stringify({ error: 'Function "${entryPoint}" not found' }));
   process.exit(1);
 }
 
@@ -404,7 +418,7 @@ if (!mainFunc) {
 (async () => {
   try {
     const args = JSON.parse(process.argv[2] || '{}');
-    const result = await mainFunc(args);
+    const result = await entryFunc(args);
     console.log(JSON.stringify(result));
   } catch (error) {
     console.error(JSON.stringify({ error: error.message }));
@@ -471,7 +485,7 @@ class BashExecutor extends BaseExecutor {
     return 'sh';
   }
 
-  async validate(code: string): Promise<ValidationResult> {
+  async validate(code: string, entryPoint: string = 'main'): Promise<ValidationResult> {
     const filepath = await this.createTempFile(code, 'sh');
     
     try {
@@ -498,7 +512,7 @@ class BashExecutor extends BaseExecutor {
     }
   }
 
-  async execute(code: string, args: FunctionArgs): Promise<ExecutionResult> {
+  async execute(code: string, args: FunctionArgs, entryPoint: string = 'main'): Promise<ExecutionResult> {
     const wrappedCode = `#!/bin/bash
 set -e
 
@@ -507,8 +521,8 @@ ${code}
 # Parse JSON arguments
 ARGS='${JSON.stringify(args)}'
 
-# Call main function
-main "$ARGS"
+# Call entry point function
+${entryPoint} "$ARGS"
 `;
 
     const filepath = await this.createTempFile(wrappedCode, 'sh');
@@ -564,7 +578,7 @@ class RubyExecutor extends BaseExecutor {
     return 'rb';
   }
 
-  async validate(code: string): Promise<ValidationResult> {
+  async validate(code: string, entryPoint: string = 'main'): Promise<ValidationResult> {
     const filepath = await this.createTempFile(code, 'rb');
     
     try {
@@ -591,7 +605,7 @@ class RubyExecutor extends BaseExecutor {
     }
   }
 
-  async execute(code: string, args: FunctionArgs): Promise<ExecutionResult> {
+  async execute(code: string, args: FunctionArgs, entryPoint: string = 'main'): Promise<ExecutionResult> {
     const wrappedCode = `
 require 'json'
 
@@ -599,7 +613,7 @@ ${code}
 
 begin
   args = ARGV[0] ? JSON.parse(ARGV[0]) : {}
-  result = main(**args.transform_keys(&:to_sym))
+  result = ${entryPoint}(**args.transform_keys(&:to_sym))
   puts JSON.generate(result)
 rescue => e
   STDERR.puts JSON.generate({ error: e.message })

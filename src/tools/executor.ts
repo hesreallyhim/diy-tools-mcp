@@ -38,7 +38,8 @@ export class FunctionExecutor {
         code,
         args,
         timeout,
-        func.codePath // Pass file path for potential optimization
+        func.codePath, // Pass file path for potential optimization
+        func.entryPoint // Pass entry point for configurable function names
       );
       
       return {
@@ -67,7 +68,8 @@ export class FunctionExecutor {
     code: string,
     args: FunctionArgs,
     timeout: number,
-    codePath?: string
+    codePath?: string,
+    entryPoint?: string
   ): Promise<ExecutionResult> {
     let timeoutId: NodeJS.Timeout;
     const timeoutPromise = new Promise<ExecutionResult>((_, reject) => {
@@ -81,7 +83,7 @@ export class FunctionExecutor {
       // The optimized file execution path needs the files to be properly wrapped
       // which they are not when copied from user's source files
       const result = await Promise.race([
-        executor.execute(code, args),
+        executor.execute(code, args, entryPoint),
         timeoutPromise
       ]);
       clearTimeout(timeoutId!);

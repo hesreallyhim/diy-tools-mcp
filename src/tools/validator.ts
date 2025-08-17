@@ -74,7 +74,7 @@ export class FunctionValidator {
         throw new ValidationError(`No executor available for language: ${spec.language}`);
       }
 
-      const validationResult = await executor.validate(spec.code!);
+      const validationResult = await executor.validate(spec.code!, spec.entryPoint);
       if (!validationResult.valid) {
         throw new ValidationError(
           `Code validation failed: ${validationResult.errors?.join(', ') || 'Unknown error'}`

@@ -6,6 +6,7 @@ export interface FunctionSpecification {
   language: SupportedLanguage;
   code?: string;              // Now optional - for inline code
   codePath?: string;          // New field - path to code file
+  entryPoint?: string;        // Optional entry point function name (defaults to 'main')
   parameters: JSONSchema7;
   returns?: string;
   dependencies?: string[];
@@ -45,8 +46,9 @@ export interface ValidationResult {
 export type FunctionArgs = Record<string, unknown>;
 
 export interface LanguageExecutor {
-  validate(code: string): Promise<ValidationResult>;
-  execute(code: string, args: FunctionArgs): Promise<ExecutionResult>;
+  validate(code: string, entryPoint?: string): Promise<ValidationResult>;
+  execute(code: string, args: FunctionArgs, entryPoint?: string): Promise<ExecutionResult>;
+  executeFile?(filepath: string, args: FunctionArgs, entryPoint?: string): Promise<ExecutionResult>;
   getFileExtension(): string;
 }
 
