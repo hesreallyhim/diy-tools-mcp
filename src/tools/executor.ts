@@ -1,8 +1,7 @@
-import { StoredFunction, ExecutionResult, ExecutionError, isInlineFunction, isFileBasedFunction, FunctionArgs, LanguageExecutor } from '../types/index.js';
+import { StoredFunction, ExecutionResult, ExecutionError, FunctionArgs, LanguageExecutor } from '../types/index.js';
 import { getExecutor } from '../utils/language.js';
 import { FunctionValidator } from './validator.js';
 import { FunctionStorage } from '../storage/functions.js';
-import { join } from 'path';
 import { TIMEOUTS } from '../constants.js';
 
 export class FunctionExecutor {
@@ -32,13 +31,12 @@ export class FunctionExecutor {
       const timeout = func.timeout || TIMEOUTS.DEFAULT_EXECUTION;
       const startTime = Date.now();
       
-      // Execute with timeout and potential file optimization
+      // Execute with timeout
       const result = await this.executeWithTimeout(
         executor,
         code,
         args,
         timeout,
-        func.codePath, // Pass file path for potential optimization
         func.entryPoint // Pass entry point for configurable function names
       );
       
@@ -68,7 +66,6 @@ export class FunctionExecutor {
     code: string,
     args: FunctionArgs,
     timeout: number,
-    codePath?: string,
     entryPoint?: string
   ): Promise<ExecutionResult> {
     let timeoutId: NodeJS.Timeout;

@@ -20,10 +20,22 @@ def main(x, y):
   });
 
   afterAll(async () => {
-    // Clean up test files
-    await rm(testDir, { recursive: true, force: true });
-    await rm(join(process.cwd(), 'functions'), { recursive: true, force: true });
-    await rm(join(process.cwd(), 'function-code'), { recursive: true, force: true });
+    // Clean up test files - use try-catch to avoid failures if already deleted
+    try {
+      await rm(testDir, { recursive: true, force: true });
+    } catch {
+      // Ignore if already deleted
+    }
+    try {
+      await rm(join(process.cwd(), 'functions'), { recursive: true, force: true });
+    } catch {
+      // Ignore if already deleted
+    }
+    try {
+      await rm(join(process.cwd(), 'function-code'), { recursive: true, force: true });
+    } catch {
+      // Ignore if already deleted
+    }
   });
 
   beforeEach(() => {

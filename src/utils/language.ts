@@ -194,20 +194,13 @@ ${code}
 if __name__ == "__main__":
     try:
         args = json.loads(sys.argv[1]) if len(sys.argv) > 1 else {}
-        # Try to find the entry point function
-        if '${entryPoint}' in locals():
-            entry_func = locals()['${entryPoint}']
-        elif '${entryPoint}' in globals():
-            entry_func = globals()['${entryPoint}']
-        else:
-            # For simple functions defined at module level
-            entry_func = ${entryPoint}
-        
+        # Module-level functions are in globals()
+        if '${entryPoint}' not in globals():
+            print(json.dumps({"error": f"Function '${entryPoint}' not found"}), file=sys.stderr)
+            sys.exit(1)
+        entry_func = globals()['${entryPoint}']
         result = entry_func(**args)
         print(json.dumps(result))
-    except NameError:
-        print(json.dumps({"error": f"Function '${entryPoint}' not found"}), file=sys.stderr)
-        sys.exit(1)
     except Exception as e:
         print(json.dumps({"error": str(e)}), file=sys.stderr)
         sys.exit(1)

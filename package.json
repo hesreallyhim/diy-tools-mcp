@@ -9,7 +9,7 @@
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "clean": "rm -rf dist",
-    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --runInBand",
     "postinstall": "npm run build"
   },
   "keywords": [

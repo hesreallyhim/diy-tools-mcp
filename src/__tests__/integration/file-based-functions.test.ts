@@ -16,10 +16,22 @@ describe('File-Based Functions Integration', () => {
   });
   
   afterAll(async () => {
-    // Clean up test directories
-    await rm(testDir, { recursive: true, force: true });
-    await rm(join(process.cwd(), 'functions'), { recursive: true, force: true });
-    await rm(join(process.cwd(), 'function-code'), { recursive: true, force: true });
+    // Clean up test directories - use try-catch to avoid failures if already deleted
+    try {
+      await rm(testDir, { recursive: true, force: true });
+    } catch {
+      // Ignore if already deleted
+    }
+    try {
+      await rm(join(process.cwd(), 'functions'), { recursive: true, force: true });
+    } catch {
+      // Ignore if already deleted
+    }
+    try {
+      await rm(join(process.cwd(), 'function-code'), { recursive: true, force: true });
+    } catch {
+      // Ignore if already deleted
+    }
   });
   
   beforeEach(async () => {
@@ -459,8 +471,9 @@ def helper():
       // Test both work
       const inlineResult = await toolManager.executeTool('inline_add', { a: 3, b: 4 });
       expect(inlineResult.output).toBe(7);
-      
+      console.log("IR:", inlineResult)
       const fileResult = await toolManager.executeTool('file_multiply', { a: 3, b: 4 });
+      console.log("FR:", fileResult)
       if (!fileResult.success) {
         console.error('File multiply execution failed:', fileResult.error);
       }
