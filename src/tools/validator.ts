@@ -52,9 +52,10 @@ export class FunctionValidator {
       }
       
       // Validate file extension matches language
-      const expectedExt = this.getExpectedExtension(spec.language);
-      if (!spec.codePath.endsWith(expectedExt)) {
-        throw new ValidationError(`File path must have ${expectedExt} extension for ${spec.language} language`);
+      const validExtensions = this.getValidExtensions(spec.language);
+      const hasValidExt = validExtensions.some(ext => spec.codePath!.endsWith(ext));
+      if (!hasValidExt) {
+        throw new ValidationError(`File path must have one of ${validExtensions.join(', ')} extensions for ${spec.language} language`);
       }
     }
 
@@ -107,6 +108,24 @@ export class FunctionValidator {
         return '.rb';
       default:
         return '';
+    }
+  }
+
+  private getValidExtensions(language: string): string[] {
+    switch (language) {
+      case 'python':
+        return ['.py'];
+      case 'javascript':
+      case 'node':
+        return ['.js', '.mjs', '.cjs'];
+      case 'typescript':
+        return ['.ts'];
+      case 'bash':
+        return ['.sh'];
+      case 'ruby':
+        return ['.rb'];
+      default:
+        return [];
     }
   }
 

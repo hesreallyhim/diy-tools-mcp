@@ -173,7 +173,7 @@ end
   });
   
   describe('Executing file-based functions', () => {
-    it.skip('should execute Python function from file', async () => {
+    it('should execute Python function from file', async () => {
       const pythonFile = join(testDir, 'exec_test.py');
       await writeFile(pythonFile, `
 def main(a, b):
@@ -196,11 +196,14 @@ def main(a, b):
       });
       
       const result = await toolManager.executeTool('math_ops', { a: 5, b: 3 });
+      if (!result.success) {
+        console.error('Python execution failed:', result.error);
+      }
       expect(result.success).toBe(true);
       expect(result.output).toEqual({ sum: 8, product: 15 });
     });
     
-    it.skip('should execute JavaScript function from file', async () => {
+    it('should execute JavaScript function from file', async () => {
       const jsFile = join(testDir, 'exec_js.js');
       await writeFile(jsFile, `
 function main({ text }) {
@@ -228,6 +231,9 @@ module.exports = { main };
       });
       
       const result = await toolManager.executeTool('text_ops', { text: 'hello' });
+      if (!result.success) {
+        console.error('JavaScript execution failed:', result.error);
+      }
       expect(result.success).toBe(true);
       expect(result.output).toEqual({
         uppercase: 'HELLO',
@@ -414,7 +420,7 @@ def helper():
       expect(execResult.output).toBe(10);
     });
     
-    it.skip('should allow mixing inline and file-based functions', async () => {
+    it('should allow mixing inline and file-based functions', async () => {
       // Add inline function
       await toolManager.addTool({
         name: 'inline_add',
@@ -455,12 +461,15 @@ def helper():
       expect(inlineResult.output).toBe(7);
       
       const fileResult = await toolManager.executeTool('file_multiply', { a: 3, b: 4 });
+      if (!fileResult.success) {
+        console.error('File multiply execution failed:', fileResult.error);
+      }
       expect(fileResult.output).toBe(12);
     });
   });
   
   describe('Language-specific features', () => {
-    it.skip('should support .mjs extension for JavaScript', async () => {
+    it('should support .mjs extension for JavaScript', async () => {
       const mjsFile = join(testDir, 'module.mjs');
       await writeFile(mjsFile, `
 function main({ value }) {
@@ -488,7 +497,7 @@ export { main };
       expect(result.codePath).toContain('.mjs');
     });
     
-    it.skip('should support .cjs extension for JavaScript', async () => {
+    it('should support .cjs extension for JavaScript', async () => {
       const cjsFile = join(testDir, 'common.cjs');
       await writeFile(cjsFile, `
 function main({ value }) {

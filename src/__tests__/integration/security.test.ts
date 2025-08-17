@@ -16,10 +16,27 @@ describe('Security Integration Tests', () => {
   });
   
   afterAll(async () => {
-    // Clean up test directories
-    await rm(testDir, { recursive: true, force: true });
-    await rm(join(process.cwd(), 'functions'), { recursive: true, force: true });
-    await rm(join(process.cwd(), 'function-code'), { recursive: true, force: true });
+    // Clean up test directories with retry
+    try {
+      await rm(testDir, { recursive: true, force: true });
+    } catch (error) {
+      // Ignore errors
+    }
+    
+    try {
+      await rm(join(process.cwd(), 'functions'), { recursive: true, force: true });
+    } catch (error) {
+      // Ignore errors
+    }
+    
+    // Wait a bit for files to be released before removing function-code
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    try {
+      await rm(join(process.cwd(), 'function-code'), { recursive: true, force: true, maxRetries: 3 });
+    } catch (error) {
+      // Ignore errors
+    }
   });
   
   beforeEach(async () => {

@@ -180,7 +180,7 @@ describe('FunctionValidator', () => {
       };
 
       await expect(validator.validate(spec)).rejects.toThrow(
-        'File path must have .py extension for python language'
+        'File path must have one of .py extensions for python language'
       );
     });
   });

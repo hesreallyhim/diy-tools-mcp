@@ -180,7 +180,11 @@ class PythonExecutor extends BaseExecutor {
   }
 
   async execute(code: string, args: any): Promise<ExecutionResult> {
-    const wrappedCode = `
+    // Check if the code already has the wrapper (for file-based functions)
+    const hasWrapper = code.includes('if __name__ == "__main__":') && 
+                      code.includes('json.loads(sys.argv[1])');
+    
+    const wrappedCode = hasWrapper ? code : `
 import json
 import sys
 
@@ -376,11 +380,30 @@ if (typeof main !== 'function') {
     const wrappedCode = `
 ${code}
 
+// Handle CommonJS exports
+let mainFunc;
+if (typeof main !== 'undefined' && typeof main === 'function') {
+  mainFunc = main;
+} else if (typeof module !== 'undefined' && module.exports) {
+  if (typeof module.exports.main === 'function') {
+    mainFunc = module.exports.main;
+  } else if (typeof module.exports === 'function') {
+    mainFunc = module.exports;
+  }
+} else if (typeof exports !== 'undefined' && typeof exports.main === 'function') {
+  mainFunc = exports.main;
+}
+
+if (!mainFunc) {
+  console.error(JSON.stringify({ error: 'No main function found' }));
+  process.exit(1);
+}
+
 // Main execution
 (async () => {
   try {
     const args = JSON.parse(process.argv[2] || '{}');
-    const result = await main(args);
+    const result = await mainFunc(args);
     console.log(JSON.stringify(result));
   } catch (error) {
     console.error(JSON.stringify({ error: error.message }));

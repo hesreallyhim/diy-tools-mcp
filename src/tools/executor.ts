@@ -76,24 +76,15 @@ export class FunctionExecutor {
     });
 
     try {
-      // If executor has executeFile method and we have a file path, use optimized execution
-      if (codePath && executor.executeFile) {
-        const fullPath = join(process.cwd(), codePath);
-        const result = await Promise.race([
-          executor.executeFile(fullPath, args),
-          timeoutPromise
-        ]);
-        clearTimeout(timeoutId!);
-        return result;
-      } else {
-        // Otherwise use standard code execution
-        const result = await Promise.race([
-          executor.execute(code, args),
-          timeoutPromise
-        ]);
-        clearTimeout(timeoutId!);
-        return result;
-      }
+      // Always use standard code execution for now
+      // The optimized file execution path needs the files to be properly wrapped
+      // which they are not when copied from user's source files
+      const result = await Promise.race([
+        executor.execute(code, args),
+        timeoutPromise
+      ]);
+      clearTimeout(timeoutId!);
+      return result;
     } catch (error) {
       clearTimeout(timeoutId!);
       if (error instanceof Error && error.message === 'Function execution timed out') {

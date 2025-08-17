@@ -47,7 +47,8 @@ export class FunctionStorage {
     // If codePath is provided, copy the file to our managed directory
     if (isFileBasedFunction(spec) && spec.codePath) {
       const sourceFile = resolve(spec.codePath);
-      const ext = this.getLanguageExtension(spec.language);
+      // Preserve the original file extension
+      const ext = sourceFile.substring(sourceFile.lastIndexOf('.') + 1);
       const destFile = join(FUNCTION_CODE_DIR, `${spec.name}.${ext}`);
       
       // Copy the file to our managed directory
@@ -84,7 +85,8 @@ export class FunctionStorage {
     // If switching to file-based, copy the file
     if (isFileBasedFunction(spec) && spec.codePath) {
       const sourceFile = resolve(spec.codePath);
-      const ext = this.getLanguageExtension(spec.language);
+      // Preserve the original file extension
+      const ext = sourceFile.substring(sourceFile.lastIndexOf('.') + 1);
       const destFile = join(FUNCTION_CODE_DIR, `${spec.name}.${ext}`);
       
       await copyFile(sourceFile, destFile);
@@ -94,7 +96,8 @@ export class FunctionStorage {
     
     // If switching to inline, remove the code file
     if (isInlineFunction(spec) && existing.codePath) {
-      const ext = this.getLanguageExtension(existing.language);
+      // Extract extension from existing codePath
+      const ext = existing.codePath.substring(existing.codePath.lastIndexOf('.') + 1);
       const codeFile = join(FUNCTION_CODE_DIR, `${name}.${ext}`);
       try {
         await unlink(codeFile);
@@ -169,7 +172,8 @@ export class FunctionStorage {
       
       // If it's a file-based function, delete the code file too
       if (func && func.codePath) {
-        const ext = this.getLanguageExtension(func.language);
+        // Extract extension from codePath
+        const ext = func.codePath.substring(func.codePath.lastIndexOf('.') + 1);
         const codeFile = join(FUNCTION_CODE_DIR, `${name}.${ext}`);
         try {
           await unlink(codeFile);

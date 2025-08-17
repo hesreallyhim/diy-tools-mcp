@@ -269,7 +269,7 @@ def main(x):
 
     // Skipped: Python execution fails in test environment due to ES module issues
     // The file-based functionality works correctly in production
-    it.skip('should execute registered file-based tool', async () => {
+    it('should execute registered file-based tool', async () => {
       const spec: FunctionSpecification = {
         name: 'exec_file',
         description: 'Execute file',

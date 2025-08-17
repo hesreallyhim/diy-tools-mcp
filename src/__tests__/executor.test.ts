@@ -215,7 +215,7 @@ def main():
   describe('executeWithTimeout', () => {
     // Skipped: Python file execution fails in test environment
     // The optimized execution path works correctly in production
-    it.skip('should use optimized file execution when available', async () => {
+    it('should use optimized file execution when available', async () => {
       const spec: FunctionSpecification = {
         name: 'optimized_exec',
         description: 'Test optimized execution',
