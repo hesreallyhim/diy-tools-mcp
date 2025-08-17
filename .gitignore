@@ -144,3 +144,5 @@ test-security-integration/
 # Keep test fixtures but ignore generated test data
 !test-fixtures/
 test-fixtures/**/test-*
+
+INTERNAL/*
