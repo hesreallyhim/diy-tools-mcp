@@ -1,0 +1,51 @@
+# Source files (users only need dist)
+src/
+*.ts
+!*.d.ts
+
+# Config files
+tsconfig.json
+jest.config.js
+.gitignore
+.npmignore
+
+# Development
+node_modules/
+*.log
+.env*
+
+# Testing
+coverage/
+__tests__/
+*.test.*
+test-*/
+
+# Documentation source
+INTERNAL/
+tickets/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.tsbuildinfo
+
+# Git
+.git/
+.github/
+
+# Function storage (user-specific)
+functions/
+function-code/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp.*

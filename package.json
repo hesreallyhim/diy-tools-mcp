@@ -1,16 +1,33 @@
 {
   "name": "diy-tools-mcp",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "MCP server that allows users to dynamically add custom tools/functions at runtime",
   "main": "dist/index.js",
   "type": "module",
+  "bin": {
+    "diy-tools-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
   "scripts": {
     "build": "tsc && chmod +x dist/index.js",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "clean": "rm -rf dist",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --runInBand",
-    "postinstall": "npm run build"
+    "prepublishOnly": "npm run clean && npm run build && npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/really-him/diy-tools-mcp.git"
+  },
+  "homepage": "https://github.com/really-him/diy-tools-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/really-him/diy-tools-mcp/issues"
   },
   "keywords": [
     "mcp",

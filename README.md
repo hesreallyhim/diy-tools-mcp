@@ -220,6 +220,74 @@ module.exports = { main };
 }
 ```
 
+### Configurable Entry Points (New in v1.2.0)
+
+You can now specify any function name as the entry point, not just `main`. This allows you to:
+- Use existing code without renaming functions
+- Share a single file between multiple tools with different entry points
+- Better organize related functions
+
+#### Example: Multiple Tools from One File
+
+1. Create a file with multiple functions `math_utils.py`:
+```python
+def calculate_tax(income, tax_rate):
+    """Calculate tax amount."""
+    return {
+        "tax_amount": income * tax_rate,
+        "net_income": income * (1 - tax_rate)
+    }
+
+def compound_interest(principal, rate, time):
+    """Calculate compound interest."""
+    amount = principal * (1 + rate) ** time
+    return {
+        "principal": principal,
+        "interest": amount - principal,
+        "total": amount
+    }
+```
+
+2. Register multiple tools using different entry points:
+```json
+// Tax calculator tool
+{
+  "name": "tax_calculator",
+  "description": "Calculate tax and net income",
+  "language": "python",
+  "codePath": "./math_utils.py",
+  "entryPoint": "calculate_tax",  // Specify which function to use
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "income": { "type": "number" },
+      "tax_rate": { "type": "number" }
+    },
+    "required": ["income", "tax_rate"]
+  }
+}
+
+// Interest calculator tool
+{
+  "name": "interest_calculator",
+  "description": "Calculate compound interest",
+  "language": "python",
+  "codePath": "./math_utils.py",
+  "entryPoint": "compound_interest",  // Different function from same file
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "principal": { "type": "number" },
+      "rate": { "type": "number" },
+      "time": { "type": "number" }
+    },
+    "required": ["principal", "rate", "time"]
+  }
+}
+```
+
+If no `entryPoint` is specified, the system defaults to looking for a function named `main` for backward compatibility.
+
 ### Viewing Function Source Code
 
 Use the `view_source` tool to inspect any registered function:
