@@ -48,11 +48,14 @@ Add a new custom tool/function to the server.
 - `name` (string, required): Tool name (must be unique, alphanumeric + underscores)
 - `description` (string, required): What the tool does
 - `language` (string, required): One of: `python`, `javascript`, `typescript`, `bash`, `ruby`, `node`
-- `code` (string, required): The function code (must define a `main` function)
+- `code` (string, conditional): The function code inline (must define a `main` function)
+- `codePath` (string, conditional): Path to file containing the function code
 - `parameters` (object, required): JSON Schema for input parameters
 - `returns` (string, optional): Description of return value
 - `dependencies` (array, optional): List of dependencies
 - `timeout` (number, optional): Timeout in milliseconds (max 300000ms)
+
+**Note:** You must provide either `code` (inline) OR `codePath` (file-based), but not both.
 
 ### 2. `remove_tool`
 Remove a custom tool from the server.
@@ -65,26 +68,43 @@ List all available custom tools.
 
 **Parameters:** None
 
+### 4. `view_source`
+View the source code of a registered tool.
+
+**Parameters:**
+- `name` (string, required): Name of the tool to view
+- `verbose` (boolean, optional): Include full metadata (default: false)
+
 ## Example Usage in Claude
 
 Once configured, you can ask Claude to:
 
-1. **Add a Python tool:**
+1. **Add an inline Python tool:**
    ```
    "Add a tool called 'calculate_factorial' that calculates the factorial of a number using Python"
    ```
 
-2. **Use the tool:**
+2. **Add a file-based tool:**
+   ```
+   "Register the data processor function from examples/python/data_processor.py"
+   ```
+
+3. **Use a tool:**
    ```
    "Calculate the factorial of 7"
    ```
 
-3. **Add a JavaScript tool:**
+4. **View source code:**
+   ```
+   "Show me the source code for the calculate_factorial tool"
+   ```
+
+5. **Add a JavaScript tool:**
    ```
    "Create a tool that formats dates in JavaScript"
    ```
 
-4. **List all tools:**
+6. **List all tools:**
    ```
    "Show me all the custom tools available"
    ```
@@ -108,7 +128,7 @@ npm run dev
 
 ### Run Tests
 ```bash
-npx tsx integration-test.temp.ts
+npm test
 ```
 
 ### Clean Build
@@ -134,6 +154,17 @@ npm run clean
 
 ## Security Notes
 
+### File-Based Functions
+When using file-based functions (`codePath`), the server implements multiple security layers:
+- Path traversal protection
+- Symbolic link detection  
+- System directory blocking
+- File size limits (10MB)
+- Dangerous code pattern detection
+- Main function enforcement
+
+### General Security
 - Tools run with the same permissions as the server
 - Only add tools from trusted sources
 - Consider running in a sandboxed environment for production use
+- File-based functions are copied to a managed directory to prevent external modifications
