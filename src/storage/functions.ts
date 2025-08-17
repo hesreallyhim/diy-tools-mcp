@@ -1,6 +1,5 @@
-import { readFile, writeFile, readdir, mkdir, unlink, copyFile } from 'fs/promises';
+import { readFile, writeFile, readdir, mkdir, unlink, copyFile, access } from 'fs/promises';
 import { join, resolve } from 'path';
-import { existsSync } from 'fs';
 import { StoredFunction, FunctionSpecification, isFileBasedFunction, isInlineFunction } from '../types/index.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -13,10 +12,17 @@ export class FunctionStorage {
   }
 
   private async ensureDirectoriesExist(): Promise<void> {
-    if (!existsSync(FUNCTIONS_DIR)) {
+    // Check and create FUNCTIONS_DIR if needed
+    try {
+      await access(FUNCTIONS_DIR);
+    } catch {
       await mkdir(FUNCTIONS_DIR, { recursive: true });
     }
-    if (!existsSync(FUNCTION_CODE_DIR)) {
+    
+    // Check and create FUNCTION_CODE_DIR if needed
+    try {
+      await access(FUNCTION_CODE_DIR);
+    } catch {
       await mkdir(FUNCTION_CODE_DIR, { recursive: true });
     }
   }
@@ -204,6 +210,11 @@ export class FunctionStorage {
   async exists(name: string): Promise<boolean> {
     const filename = `${name}.json`;
     const filepath = join(FUNCTIONS_DIR, filename);
-    return existsSync(filepath);
+    try {
+      await access(filepath);
+      return true;
+    } catch {
+      return false;
+    }
   }
 }

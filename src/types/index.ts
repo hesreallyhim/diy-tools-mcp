@@ -41,9 +41,12 @@ export interface ValidationResult {
   errors?: string[];
 }
 
+// Type for function arguments - can be any JSON-serializable value
+export type FunctionArgs = Record<string, unknown>;
+
 export interface LanguageExecutor {
   validate(code: string): Promise<ValidationResult>;
-  execute(code: string, args: any): Promise<ExecutionResult>;
+  execute(code: string, args: FunctionArgs): Promise<ExecutionResult>;
   getFileExtension(): string;
 }
 

@@ -45,7 +45,7 @@ export class SecurityValidator {
   static async validateFilePath(filePath: string, language: SupportedLanguage): Promise<void> {
     // Check for path traversal attempts FIRST
     if (filePath.includes('../') || filePath.includes('..\\')) {
-      throw new RegistrationError(`Path traversal detected in: ${filePath}`);
+      throw new RegistrationError(`Path traversal detected in: ${SecurityValidator.sanitizePath(filePath)}`);
     }
     
     const resolvedPath = resolve(filePath);
@@ -54,7 +54,7 @@ export class SecurityValidator {
     try {
       await access(resolvedPath, constants.R_OK);
     } catch {
-      throw new RegistrationError(`Cannot read file: ${filePath}`);
+      throw new RegistrationError(`Cannot read file: ${SecurityValidator.sanitizePath(filePath)}`);
     }
     
     // Get file stats using lstat to detect symbolic links
@@ -62,12 +62,12 @@ export class SecurityValidator {
     
     // Check if it's a symbolic link
     if (stats.isSymbolicLink()) {
-      throw new RegistrationError(`Symbolic links are not allowed: ${filePath}`);
+      throw new RegistrationError(`Symbolic links are not allowed: ${SecurityValidator.sanitizePath(filePath)}`);
     }
     
     // Check if it's actually a file
     if (!stats.isFile()) {
-      throw new RegistrationError(`Path is not a file: ${filePath}`);
+      throw new RegistrationError(`Path is not a file: ${SecurityValidator.sanitizePath(filePath)}`);
     }
     
     // Check file size
@@ -81,7 +81,7 @@ export class SecurityValidator {
     const blockedPaths = this.getBlockedPaths();
     for (const blockedPath of blockedPaths) {
       if (resolvedPath.startsWith(blockedPath)) {
-        throw new RegistrationError(`Access to path is restricted: ${filePath}`);
+        throw new RegistrationError(`Access to path is restricted: ${SecurityValidator.sanitizePath(filePath)}`);
       }
     }
     

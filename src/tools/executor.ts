@@ -1,8 +1,9 @@
-import { StoredFunction, ExecutionResult, ExecutionError, isInlineFunction, isFileBasedFunction } from '../types/index.js';
+import { StoredFunction, ExecutionResult, ExecutionError, isInlineFunction, isFileBasedFunction, FunctionArgs, LanguageExecutor } from '../types/index.js';
 import { getExecutor } from '../utils/language.js';
 import { FunctionValidator } from './validator.js';
 import { FunctionStorage } from '../storage/functions.js';
 import { join } from 'path';
+import { TIMEOUTS } from '../constants.js';
 
 export class FunctionExecutor {
   private validator: FunctionValidator;
@@ -13,7 +14,7 @@ export class FunctionExecutor {
     this.storage = new FunctionStorage();
   }
 
-  async execute(func: StoredFunction, args: any): Promise<ExecutionResult> {
+  async execute(func: StoredFunction, args: FunctionArgs): Promise<ExecutionResult> {
     try {
       // Validate arguments against schema
       this.validator.validateArguments(func.parameters, args);
@@ -28,7 +29,7 @@ export class FunctionExecutor {
       const code = await this.storage.loadFunctionCode(func);
 
       // Execute the function with timeout
-      const timeout = func.timeout || 30000; // Default 30 seconds
+      const timeout = func.timeout || TIMEOUTS.DEFAULT_EXECUTION;
       const startTime = Date.now();
       
       // Execute with timeout and potential file optimization
@@ -62,9 +63,9 @@ export class FunctionExecutor {
   }
 
   private async executeWithTimeout(
-    executor: any, // LanguageExecutor type
+    executor: LanguageExecutor,
     code: string,
-    args: any,
+    args: FunctionArgs,
     timeout: number,
     codePath?: string
   ): Promise<ExecutionResult> {

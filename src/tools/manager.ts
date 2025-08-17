@@ -3,12 +3,14 @@ import {
   FunctionSpecification, 
   StoredFunction, 
   RegistrationError,
-  ExecutionResult 
+  ExecutionResult,
+  FunctionArgs 
 } from '../types/index.js';
 import { FunctionStorage } from '../storage/functions.js';
 import { FunctionValidator } from './validator.js';
 import { FunctionExecutor } from './executor.js';
 import { SecurityValidator } from '../utils/security.js';
+import { TIMEOUTS } from '../constants.js';
 
 export class ToolManager {
   private storage: FunctionStorage;
@@ -100,7 +102,7 @@ export class ToolManager {
     return true;
   }
 
-  async executeTool(name: string, args: any): Promise<ExecutionResult> {
+  async executeTool(name: string, args: FunctionArgs): Promise<ExecutionResult> {
     const tool = this.registeredTools.get(name);
     if (!tool) {
       return {
@@ -170,9 +172,9 @@ export class ToolManager {
           },
           timeout: {
             type: 'number',
-            description: 'Optional timeout in milliseconds (max 300000ms = 5 minutes)',
-            minimum: 1,
-            maximum: 300000
+            description: `Optional timeout in milliseconds (max ${TIMEOUTS.MAX_EXECUTION}ms = ${TIMEOUTS.MAX_EXECUTION / 1000 / 60} minutes)`,
+            minimum: TIMEOUTS.MIN_EXECUTION,
+            maximum: TIMEOUTS.MAX_EXECUTION
           }
         },
         required: ['name', 'description', 'language', 'parameters'],

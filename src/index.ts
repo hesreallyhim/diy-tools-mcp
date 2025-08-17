@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { DIYToolsServer } from './server.js';
+import { cleanupTempFiles } from './utils/cleanup.js';
 
 async function main() {
   try {
@@ -12,15 +13,27 @@ async function main() {
   }
 }
 
-// Handle graceful shutdown
-process.on('SIGINT', () => {
-  console.error('Shutting down...');
+// Handle graceful shutdown with cleanup
+async function shutdown(signal: string) {
+  console.error(`Shutting down (${signal})...`);
+  try {
+    await cleanupTempFiles();
+  } catch (error) {
+    console.error('Error during cleanup:', error);
+  }
   process.exit(0);
-});
+}
 
-process.on('SIGTERM', () => {
-  console.error('Shutting down...');
-  process.exit(0);
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+
+// Clean up temp files on unexpected exit
+process.on('beforeExit', async () => {
+  try {
+    await cleanupTempFiles();
+  } catch {
+    // Ignore errors during cleanup
+  }
 });
 
 main().catch((error) => {

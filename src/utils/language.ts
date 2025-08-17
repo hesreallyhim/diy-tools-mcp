@@ -6,25 +6,26 @@ import {
   LanguageExecutor, 
   ExecutionResult, 
   ValidationResult, 
-  SupportedLanguage 
+  SupportedLanguage,
+  FunctionArgs 
 } from '../types/index.js';
+import { TIMEOUTS } from '../constants.js';
 
 const TEMP_DIR = '/tmp';
-const DEFAULT_TIMEOUT = 30000; // 30 seconds
 
 abstract class BaseExecutor implements LanguageExecutor {
   abstract validate(code: string): Promise<ValidationResult>;
-  abstract execute(code: string, args: any): Promise<ExecutionResult>;
+  abstract execute(code: string, args: FunctionArgs): Promise<ExecutionResult>;
   abstract getFileExtension(): string;
   
   // Optional optimized file execution
-  async executeFile?(filepath: string, args: any): Promise<ExecutionResult>;
+  async executeFile?(filepath: string, args: FunctionArgs): Promise<ExecutionResult>;
 
   protected async runCommand(
     command: string, 
     args: string[], 
     input?: string,
-    timeout: number = DEFAULT_TIMEOUT
+    timeout: number = TIMEOUTS.DEFAULT_EXECUTION
   ): Promise<{ stdout: string; stderr: string; code: number }> {
     return new Promise((resolve, reject) => {
       const proc = spawn(command, args, {
@@ -104,7 +105,7 @@ class PythonExecutor extends BaseExecutor {
   }
 
   // Optimized file execution - run the file directly without creating temp file
-  async executeFile(filepath: string, args: any): Promise<ExecutionResult> {
+  async executeFile(filepath: string, args: FunctionArgs): Promise<ExecutionResult> {
     const startTime = Date.now();
     
     try {
@@ -179,7 +180,7 @@ class PythonExecutor extends BaseExecutor {
     }
   }
 
-  async execute(code: string, args: any): Promise<ExecutionResult> {
+  async execute(code: string, args: FunctionArgs): Promise<ExecutionResult> {
     // Check if the code already has the wrapper (for file-based functions)
     const hasWrapper = code.includes('if __name__ == "__main__":') && 
                       code.includes('json.loads(sys.argv[1])');
@@ -259,7 +260,7 @@ class JavaScriptExecutor extends BaseExecutor {
   }
 
   // Optimized file execution
-  async executeFile(filepath: string, args: any): Promise<ExecutionResult> {
+  async executeFile(filepath: string, args: FunctionArgs): Promise<ExecutionResult> {
     const startTime = Date.now();
     
     // Create a wrapper script that loads the file and executes it
@@ -376,7 +377,7 @@ if (typeof main !== 'function') {
     }
   }
 
-  async execute(code: string, args: any): Promise<ExecutionResult> {
+  async execute(code: string, args: FunctionArgs): Promise<ExecutionResult> {
     const wrappedCode = `
 ${code}
 
@@ -497,7 +498,7 @@ class BashExecutor extends BaseExecutor {
     }
   }
 
-  async execute(code: string, args: any): Promise<ExecutionResult> {
+  async execute(code: string, args: FunctionArgs): Promise<ExecutionResult> {
     const wrappedCode = `#!/bin/bash
 set -e
 
@@ -590,7 +591,7 @@ class RubyExecutor extends BaseExecutor {
     }
   }
 
-  async execute(code: string, args: any): Promise<ExecutionResult> {
+  async execute(code: string, args: FunctionArgs): Promise<ExecutionResult> {
     const wrappedCode = `
 require 'json'
 

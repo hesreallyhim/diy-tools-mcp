@@ -1,7 +1,8 @@
 import { default as Ajv } from 'ajv';
 import { JSONSchema7 } from 'json-schema';
-import { FunctionSpecification, ValidationError, isFileBasedFunction, isInlineFunction } from '../types/index.js';
+import { FunctionSpecification, ValidationError, isFileBasedFunction, isInlineFunction, FunctionArgs } from '../types/index.js';
 import { getExecutor, isSupportedLanguage } from '../utils/language.js';
+import { TIMEOUTS } from '../constants.js';
 
 const AjvConstructor = Ajv as unknown as typeof Ajv.default;
 const ajv = new AjvConstructor({ strict: false });
@@ -87,8 +88,8 @@ export class FunctionValidator {
         throw new ValidationError('Timeout must be a positive number');
       }
       
-      if (spec.timeout > 300000) { // 5 minutes max
-        throw new ValidationError('Timeout cannot exceed 5 minutes (300000ms)');
+      if (spec.timeout > TIMEOUTS.MAX_EXECUTION) {
+        throw new ValidationError(`Timeout cannot exceed ${TIMEOUTS.MAX_EXECUTION / 1000 / 60} minutes (${TIMEOUTS.MAX_EXECUTION}ms)`);
       }
     }
   }
@@ -145,7 +146,7 @@ export class FunctionValidator {
     }
   }
 
-  validateArguments(schema: JSONSchema7, args: any): void {
+  validateArguments(schema: JSONSchema7, args: FunctionArgs): void {
     const validate = ajv.compile(schema);
     
     if (!validate(args)) {
