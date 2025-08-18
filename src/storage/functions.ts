@@ -1,6 +1,11 @@
 import { readFile, writeFile, readdir, mkdir, unlink, copyFile, access } from 'fs/promises';
 import { join, resolve } from 'path';
-import { StoredFunction, FunctionSpecification, isFileBasedFunction, isInlineFunction } from '../types/index.js';
+import {
+  StoredFunction,
+  FunctionSpecification,
+  isFileBasedFunction,
+  isInlineFunction,
+} from '../types/index.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const FUNCTIONS_DIR = join(process.cwd(), 'functions');
@@ -15,14 +20,14 @@ export class FunctionStorage {
     // Check and create FUNCTIONS_DIR if needed
     try {
       await access(FUNCTIONS_DIR);
-    } catch {
+    } catch (error) {
       await mkdir(FUNCTIONS_DIR, { recursive: true });
     }
-    
+
     // Check and create FUNCTION_CODE_DIR if needed
     try {
       await access(FUNCTION_CODE_DIR);
-    } catch {
+    } catch (error) {
       await mkdir(FUNCTION_CODE_DIR, { recursive: true });
     }
   }
@@ -47,36 +52,36 @@ export class FunctionStorage {
 
   async save(spec: FunctionSpecification): Promise<StoredFunction> {
     await this.ensureDirectoriesExist();
-    
-    let finalSpec = { ...spec };
-    
+
+    const finalSpec = { ...spec };
+
     // If codePath is provided, copy the file to our managed directory
     if (isFileBasedFunction(spec) && spec.codePath) {
       const sourceFile = resolve(spec.codePath);
       // Preserve the original file extension
       const ext = sourceFile.substring(sourceFile.lastIndexOf('.') + 1);
       const destFile = join(FUNCTION_CODE_DIR, `${spec.name}.${ext}`);
-      
+
       // Copy the file to our managed directory
       await copyFile(sourceFile, destFile);
-      
+
       // Update the spec to use relative path from project root
       finalSpec.codePath = `function-code/${spec.name}.${ext}`;
       delete finalSpec.code; // Ensure no inline code
     }
-    
+
     const storedFunction: StoredFunction = {
       ...finalSpec,
       id: uuidv4(),
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
     const filename = `${spec.name}.json`;
     const filepath = join(FUNCTIONS_DIR, filename);
-    
+
     await writeFile(filepath, JSON.stringify(storedFunction, null, 2));
-    
+
     return storedFunction;
   }
 
@@ -86,20 +91,20 @@ export class FunctionStorage {
       return null;
     }
 
-    let finalSpec = { ...spec };
-    
+    const finalSpec = { ...spec };
+
     // If switching to file-based, copy the file
     if (isFileBasedFunction(spec) && spec.codePath) {
       const sourceFile = resolve(spec.codePath);
       // Preserve the original file extension
       const ext = sourceFile.substring(sourceFile.lastIndexOf('.') + 1);
       const destFile = join(FUNCTION_CODE_DIR, `${spec.name}.${ext}`);
-      
+
       await copyFile(sourceFile, destFile);
       finalSpec.codePath = `function-code/${spec.name}.${ext}`;
       delete finalSpec.code;
     }
-    
+
     // If switching to inline, remove the code file
     if (isInlineFunction(spec) && existing.codePath) {
       // Extract extension from existing codePath
@@ -117,14 +122,14 @@ export class FunctionStorage {
       ...finalSpec,
       id: existing.id,
       createdAt: existing.createdAt,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
     const filename = `${name}.json`;
     const filepath = join(FUNCTIONS_DIR, filename);
-    
+
     await writeFile(filepath, JSON.stringify(updated, null, 2));
-    
+
     return updated;
   }
 
@@ -132,7 +137,7 @@ export class FunctionStorage {
     try {
       const filename = `${name}.json`;
       const filepath = join(FUNCTIONS_DIR, filename);
-      
+
       const content = await readFile(filepath, 'utf-8');
       return JSON.parse(content) as StoredFunction;
     } catch (error) {
@@ -142,26 +147,26 @@ export class FunctionStorage {
 
   async loadAll(): Promise<StoredFunction[]> {
     await this.ensureDirectoriesExist();
-    
+
     try {
       const files = await readdir(FUNCTIONS_DIR);
-      const jsonFiles = files.filter(f => f.endsWith('.json'));
-      
+      const jsonFiles = files.filter((f) => f.endsWith('.json'));
+
       const functions = await Promise.all(
         jsonFiles.map(async (file) => {
           try {
             const content = await readFile(join(FUNCTIONS_DIR, file), 'utf-8');
             return JSON.parse(content) as StoredFunction;
           } catch (error) {
-            console.error(`Failed to load function from ${file}:`, error);
+            console.error(`Failed to load function from ${file}`);
             return null;
           }
         })
       );
-      
+
       return functions.filter((f): f is StoredFunction => f !== null);
     } catch (error) {
-      console.error('Failed to load functions:', error);
+      console.error('Failed to load functions');
       return [];
     }
   }
@@ -170,12 +175,12 @@ export class FunctionStorage {
     try {
       // Load the function to check if it has a code file
       const func = await this.load(name);
-      
+
       // Delete the metadata file
       const filename = `${name}.json`;
       const filepath = join(FUNCTIONS_DIR, filename);
       await unlink(filepath);
-      
+
       // If it's a file-based function, delete the code file too
       if (func && func.codePath) {
         // Extract extension from codePath
@@ -187,7 +192,7 @@ export class FunctionStorage {
           // Code file might not exist, that's okay
         }
       }
-      
+
       return true;
     } catch (error) {
       return false;
@@ -198,12 +203,12 @@ export class FunctionStorage {
     if (isInlineFunction(func) && func.code) {
       return func.code;
     }
-    
+
     if (isFileBasedFunction(func) && func.codePath) {
       const fullPath = join(process.cwd(), func.codePath);
       return await readFile(fullPath, 'utf-8');
     }
-    
+
     throw new Error('Function has neither code nor codePath');
   }
 
@@ -213,7 +218,7 @@ export class FunctionStorage {
     try {
       await access(filepath);
       return true;
-    } catch {
+    } catch (error) {
       return false;
     }
   }

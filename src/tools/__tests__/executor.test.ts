@@ -15,9 +15,11 @@ describe('FunctionExecutor', () => {
   beforeAll(async () => {
     // Create test directory and files
     await mkdir(testDir, { recursive: true });
-    
+
     // Python test file
-    await writeFile(pythonFile, `
+    await writeFile(
+      pythonFile,
+      `
 import json
 import sys
 
@@ -32,10 +34,13 @@ if __name__ == "__main__":
     except Exception as e:
         print(json.dumps({"error": str(e)}), file=sys.stderr)
         sys.exit(1)
-`);
+`
+    );
 
     // JavaScript test file
-    await writeFile(jsFile, `
+    await writeFile(
+      jsFile,
+      `
 function main(args) {
   const { x, y } = args;
   return {
@@ -45,7 +50,8 @@ function main(args) {
 }
 
 module.exports = { main };
-`);
+`
+    );
   });
 
   afterAll(async () => {
@@ -74,15 +80,15 @@ def main(name, greeting="Hello"):
           type: 'object',
           properties: {
             name: { type: 'string' },
-            greeting: { type: 'string' }
+            greeting: { type: 'string' },
           },
-          required: ['name']
-        }
+          required: ['name'],
+        },
       };
 
       const stored = await storage.save(spec);
       const result = await executor.execute(stored, { name: 'World' });
-      
+
       expect(result.success).toBe(true);
       expect(result.output).toEqual({ message: 'Hello, World!' });
       expect(result.executionTime).toBeGreaterThan(0);
@@ -98,15 +104,15 @@ def main(name, greeting="Hello"):
           type: 'object',
           properties: {
             a: { type: 'number' },
-            b: { type: 'number' }
+            b: { type: 'number' },
           },
-          required: ['a', 'b']
-        }
+          required: ['a', 'b'],
+        },
       };
 
       const stored = await storage.save(spec);
       const result = await executor.execute(stored, { a: 5, b: 3 });
-      
+
       expect(result.success).toBe(true);
       expect(result.output).toEqual({ sum: 8, product: 15 });
       expect(result.executionTime).toBeGreaterThan(0);
@@ -125,15 +131,15 @@ function main(args) {
         parameters: {
           type: 'object',
           properties: {
-            text: { type: 'string' }
+            text: { type: 'string' },
           },
-          required: ['text']
-        }
+          required: ['text'],
+        },
       };
 
       const stored = await storage.save(spec);
       const result = await executor.execute(stored, { text: 'hello' });
-      
+
       expect(result.success).toBe(true);
       expect(result.output).toEqual({ reversed: 'olleh' });
       expect(result.executionTime).toBeGreaterThan(0);
@@ -148,12 +154,12 @@ function main(args) {
 def main():
     raise ValueError("Test error")
 `,
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
 
       const stored = await storage.save(spec);
       const result = await executor.execute(stored, {});
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toContain('Test error');
     });
@@ -170,12 +176,12 @@ def main():
     return "Should not reach"
 `,
         parameters: { type: 'object', properties: {} },
-        timeout: 500 // 500ms timeout
+        timeout: 500, // 500ms timeout
       };
 
       const stored = await storage.save(spec);
       const result = await executor.execute(stored, {});
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toContain('timed out');
       // Allow 1ms tolerance for timing precision
@@ -192,19 +198,19 @@ def main():
         parameters: {
           type: 'object',
           properties: {
-            x: { type: 'number' }
+            x: { type: 'number' },
           },
-          required: ['x']
-        }
+          required: ['x'],
+        },
       };
 
       const stored = await storage.save(spec);
-      
+
       // Missing required parameter
       const result1 = await executor.execute(stored, {});
       expect(result1.success).toBe(false);
       expect(result1.error).toContain('required');
-      
+
       // Wrong type
       const result2 = await executor.execute(stored, { x: 'not a number' });
       expect(result2.success).toBe(false);
@@ -225,15 +231,15 @@ def main():
           type: 'object',
           properties: {
             a: { type: 'number' },
-            b: { type: 'number' }
+            b: { type: 'number' },
           },
-          required: ['a', 'b']
-        }
+          required: ['a', 'b'],
+        },
       };
 
       const stored = await storage.save(spec);
       const result = await executor.execute(stored, { a: 10, b: 20 });
-      
+
       // The optimized path should still produce correct results
       expect(result.success).toBe(true);
       expect(result.output).toEqual({ sum: 30, product: 200 });

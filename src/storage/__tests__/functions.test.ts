@@ -13,27 +13,30 @@ describe('FunctionStorage', () => {
   beforeAll(async () => {
     // Create test directory and file
     await mkdir(testDir, { recursive: true });
-    await writeFile(testFile, `
+    await writeFile(
+      testFile,
+      `
 def main(x, y):
     return {"result": x + y}
-`);
+`
+    );
   });
 
   afterAll(async () => {
     // Clean up test files - use try-catch to avoid failures if already deleted
     try {
       await rm(testDir, { recursive: true, force: true });
-    } catch {
+    } catch (error) {
       // Ignore if already deleted
     }
     try {
       await rm(join(process.cwd(), 'functions'), { recursive: true, force: true });
-    } catch {
+    } catch (error) {
       // Ignore if already deleted
     }
     try {
       await rm(join(process.cwd(), 'function-code'), { recursive: true, force: true });
-    } catch {
+    } catch (error) {
       // Ignore if already deleted
     }
   });
@@ -49,11 +52,11 @@ def main(x, y):
         description: 'Test inline function',
         language: 'python',
         code: 'def main(): return "hello"',
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
 
       const stored = await storage.save(spec);
-      
+
       expect(stored.id).toBeDefined();
       expect(stored.code).toBe(spec.code);
       expect(stored.codePath).toBeUndefined();
@@ -67,17 +70,17 @@ def main(x, y):
         description: 'Test file-based function',
         language: 'python',
         codePath: testFile,
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
 
       const stored = await storage.save(spec);
-      
+
       expect(stored.id).toBeDefined();
       expect(stored.code).toBeUndefined();
       expect(stored.codePath).toBe('function-code/file_test.py');
       expect(isFileBasedFunction(stored)).toBe(true);
       expect(isInlineFunction(stored)).toBe(false);
-      
+
       // Verify file was copied
       const copiedFile = join(process.cwd(), 'function-code', 'file_test.py');
       expect(existsSync(copiedFile)).toBe(true);
@@ -90,11 +93,11 @@ def main(x, y):
         language: 'python',
         code: 'def main(): pass',
         codePath: testFile,
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
 
       const stored = await storage.save(spec);
-      
+
       // Storage doesn't validate, it just saves what's valid
       // The validation happens in ToolManager
       expect(stored.id).toBeDefined();
@@ -108,12 +111,12 @@ def main(x, y):
         description: 'Test loading inline code',
         language: 'python',
         code: 'def main(): return "inline"',
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
 
       const stored = await storage.save(spec);
       const code = await storage.loadFunctionCode(stored);
-      
+
       expect(code).toBe('def main(): return "inline"');
     });
 
@@ -123,12 +126,12 @@ def main(x, y):
         description: 'Test loading file code',
         language: 'python',
         codePath: testFile,
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
 
       const stored = await storage.save(spec);
       const code = await storage.loadFunctionCode(stored);
-      
+
       expect(code).toContain('def main(x, y):');
       expect(code).toContain('return {"result": x + y}');
     });
@@ -141,7 +144,7 @@ def main(x, y):
         language: 'python' as const,
         parameters: { type: 'object' as const, properties: {} },
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       await expect(storage.loadFunctionCode(stored)).rejects.toThrow(
@@ -157,16 +160,16 @@ def main(x, y):
         description: 'Test deletion',
         language: 'python',
         code: 'def main(): pass',
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
 
-      const stored = await storage.save(spec);
+      await storage.save(spec);
       const deleted = await storage.delete(spec.name);
-      
+
       expect(deleted).toBe(true);
-      
+
       const all = await storage.loadAll();
-      expect(all.find(f => f.name === spec.name)).toBeUndefined();
+      expect(all.find((f) => f.name === spec.name)).toBeUndefined();
     });
 
     it('should delete file-based function and clean up code file', async () => {
@@ -175,21 +178,21 @@ def main(x, y):
         description: 'Test file deletion',
         language: 'python',
         codePath: testFile,
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
 
       const stored = await storage.save(spec);
       const codeFile = join(process.cwd(), stored.codePath!);
-      
+
       expect(existsSync(codeFile)).toBe(true);
-      
+
       const deleted = await storage.delete(spec.name);
-      
+
       expect(deleted).toBe(true);
       expect(existsSync(codeFile)).toBe(false);
-      
+
       const all = await storage.loadAll();
-      expect(all.find(f => f.name === spec.name)).toBeUndefined();
+      expect(all.find((f) => f.name === spec.name)).toBeUndefined();
     });
   });
 
@@ -200,7 +203,7 @@ def main(x, y):
         description: 'Inline function',
         language: 'python',
         code: 'def main(): pass',
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
 
       const fileBased: FunctionSpecification = {
@@ -208,21 +211,21 @@ def main(x, y):
         description: 'File function',
         language: 'python',
         codePath: testFile,
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
 
       await storage.save(inline);
       await storage.save(fileBased);
-      
+
       const all = await storage.loadAll();
-      
-      const foundInline = all.find(f => f.name === 'load_all_inline');
-      const foundFile = all.find(f => f.name === 'load_all_file');
-      
+
+      const foundInline = all.find((f) => f.name === 'load_all_inline');
+      const foundFile = all.find((f) => f.name === 'load_all_file');
+
       expect(foundInline).toBeDefined();
       expect(foundInline?.code).toBeDefined();
       expect(foundInline?.codePath).toBeUndefined();
-      
+
       expect(foundFile).toBeDefined();
       expect(foundFile?.code).toBeUndefined();
       expect(foundFile?.codePath).toBeDefined();

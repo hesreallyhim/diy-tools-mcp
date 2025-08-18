@@ -16,9 +16,11 @@ describe('ToolManager', () => {
   beforeAll(async () => {
     // Create test directory and files
     await mkdir(testDir, { recursive: true });
-    
+
     // Valid Python file with proper main function
-    await writeFile(pythonFile, `
+    await writeFile(
+      pythonFile,
+      `
 import json
 import sys
 
@@ -33,15 +35,19 @@ if __name__ == "__main__":
     except Exception as e:
         print(json.dumps({"error": str(e)}), file=sys.stderr)
         sys.exit(1)
-`);
+`
+    );
 
     // Valid JS file
-    await writeFile(jsFile, `
+    await writeFile(
+      jsFile,
+      `
 function main(args) {
   return { status: "ok" };
 }
 module.exports = { main };
-`);
+`
+    );
 
     // Large file (simulate > 10MB)
     // We can't actually create a 10MB file in tests, so we'll mock this
@@ -57,9 +63,9 @@ module.exports = { main };
 
   beforeEach(async () => {
     mockServer = {
-      notification: jest.fn()
+      notification: jest.fn(),
     } as unknown as Server;
-    
+
     manager = new ToolManager(mockServer);
     await manager.initialize();
   });
@@ -73,7 +79,7 @@ module.exports = { main };
           language: 'python',
           code: 'def main(): pass',
           codePath: pythonFile,
-          parameters: { type: 'object', properties: {} }
+          parameters: { type: 'object', properties: {} },
         };
 
         await expect(manager.addTool(spec)).rejects.toThrow(
@@ -86,12 +92,10 @@ module.exports = { main };
           name: 'invalid_neither',
           description: 'Invalid tool',
           language: 'python',
-          parameters: { type: 'object', properties: {} }
+          parameters: { type: 'object', properties: {} },
         };
 
-        await expect(manager.addTool(spec)).rejects.toThrow(
-          'Must specify either code or codePath'
-        );
+        await expect(manager.addTool(spec)).rejects.toThrow('Must specify either code or codePath');
       });
 
       it('should reject non-existent file', async () => {
@@ -100,12 +104,10 @@ module.exports = { main };
           description: 'Non-existent file',
           language: 'python',
           codePath: './does_not_exist.py',
-          parameters: { type: 'object', properties: {} }
+          parameters: { type: 'object', properties: {} },
         };
 
-        await expect(manager.addTool(spec)).rejects.toThrow(
-          'Cannot read file'
-        );
+        await expect(manager.addTool(spec)).rejects.toThrow('Cannot read file');
       });
 
       it('should reject file with wrong extension', async () => {
@@ -114,12 +116,10 @@ module.exports = { main };
           description: 'Wrong extension',
           language: 'python',
           codePath: jsFile, // JS file for Python language
-          parameters: { type: 'object', properties: {} }
+          parameters: { type: 'object', properties: {} },
         };
 
-        await expect(manager.addTool(spec)).rejects.toThrow(
-          "Invalid file extension"
-        );
+        await expect(manager.addTool(spec)).rejects.toThrow('Invalid file extension');
       });
 
       it('should reject duplicate tool names', async () => {
@@ -128,7 +128,7 @@ module.exports = { main };
           description: 'First tool',
           language: 'python',
           code: 'def main(): pass',
-          parameters: { type: 'object', properties: {} }
+          parameters: { type: 'object', properties: {} },
         };
 
         const spec2: FunctionSpecification = {
@@ -136,13 +136,11 @@ module.exports = { main };
           description: 'Second tool',
           language: 'python',
           code: 'def main(): return "different"',
-          parameters: { type: 'object', properties: {} }
+          parameters: { type: 'object', properties: {} },
         };
 
         await manager.addTool(spec1);
-        await expect(manager.addTool(spec2)).rejects.toThrow(
-          'already exists'
-        );
+        await expect(manager.addTool(spec2)).rejects.toThrow('already exists');
       });
     });
 
@@ -156,14 +154,14 @@ module.exports = { main };
           parameters: {
             type: 'object',
             properties: {
-              x: { type: 'number' }
+              x: { type: 'number' },
             },
-            required: ['x']
-          }
+            required: ['x'],
+          },
         };
 
         const result = await manager.addTool(spec);
-        
+
         expect(result.name).toBe('inline_tool');
         expect(result.code).toBe(spec.code);
         expect(result.codePath).toBeUndefined();
@@ -176,11 +174,11 @@ module.exports = { main };
           description: 'File-based tool',
           language: 'python',
           codePath: pythonFile,
-          parameters: { type: 'object', properties: {} }
+          parameters: { type: 'object', properties: {} },
         };
 
         const result = await manager.addTool(spec);
-        
+
         expect(result.name).toBe('file_tool');
         expect(result.code).toBeUndefined();
         expect(result.codePath).toContain('function-code');
@@ -193,13 +191,13 @@ module.exports = { main };
           description: 'Test notification',
           language: 'python',
           code: 'def main(): pass',
-          parameters: { type: 'object', properties: {} }
+          parameters: { type: 'object', properties: {} },
         };
 
         await manager.addTool(spec);
-        
+
         expect(mockServer.notification).toHaveBeenCalledWith({
-          method: 'tools/listChanged'
+          method: 'tools/listChanged',
         });
       });
     });
@@ -208,18 +206,15 @@ module.exports = { main };
   describe('getTools', () => {
     it('should include add_tool with correct schema', () => {
       const tools = manager.getTools();
-      const addTool = tools.find(t => t.name === 'add_tool');
-      
+      const addTool = tools.find((t) => t.name === 'add_tool');
+
       expect(addTool).toBeDefined();
       expect(addTool?.inputSchema).toHaveProperty('properties.code');
       expect(addTool?.inputSchema).toHaveProperty('properties.codePath');
       expect(addTool?.inputSchema).toHaveProperty('oneOf');
-      
+
       const schema = addTool!.inputSchema;
-      expect(schema.oneOf).toEqual([
-        { required: ['code'] },
-        { required: ['codePath'] }
-      ]);
+      expect(schema.oneOf).toEqual([{ required: ['code'] }, { required: ['codePath'] }]);
     });
 
     it('should include registered custom tools', async () => {
@@ -228,14 +223,14 @@ module.exports = { main };
         description: 'Custom tool',
         language: 'python',
         code: 'def main(): return "custom"',
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
 
       await manager.addTool(spec);
-      
+
       const tools = manager.getTools();
-      const customTool = tools.find(t => t.name === 'custom_tool');
-      
+      const customTool = tools.find((t) => t.name === 'custom_tool');
+
       expect(customTool).toBeDefined();
       expect(customTool?.description).toBe('Custom tool');
     });
@@ -254,15 +249,15 @@ def main(x):
         parameters: {
           type: 'object',
           properties: {
-            x: { type: 'number' }
+            x: { type: 'number' },
           },
-          required: ['x']
-        }
+          required: ['x'],
+        },
       };
 
       await manager.addTool(spec);
       const result = await manager.executeTool('exec_inline', { x: 5 });
-      
+
       expect(result.success).toBe(true);
       expect(result.output).toEqual({ doubled: 10 });
     });
@@ -275,19 +270,19 @@ def main(x):
         description: 'Execute file',
         language: 'python',
         codePath: pythonFile,
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
 
       await manager.addTool(spec);
       const result = await manager.executeTool('exec_file', {});
-      
+
       expect(result.success).toBe(true);
       expect(result.output).toEqual({ status: 'ok' });
     });
 
     it('should return error for non-existent tool', async () => {
       const result = await manager.executeTool('does_not_exist', {});
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toContain('not found');
     });
@@ -300,14 +295,14 @@ def main(x):
         description: 'Tool to remove',
         language: 'python',
         codePath: pythonFile,
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
 
       await manager.addTool(spec);
       const removed = await manager.removeTool('remove_test');
-      
+
       expect(removed).toBe(true);
-      
+
       // Verify tool is gone
       const result = await manager.executeTool('remove_test', {});
       expect(result.success).toBe(false);
@@ -323,8 +318,8 @@ def main(x):
   describe('view_source', () => {
     it('should be included in getTools', () => {
       const tools = manager.getTools();
-      const viewSourceTool = tools.find(t => t.name === 'view_source');
-      
+      const viewSourceTool = tools.find((t) => t.name === 'view_source');
+
       expect(viewSourceTool).toBeDefined();
       expect(viewSourceTool?.description).toContain('View the source code');
       expect(viewSourceTool?.inputSchema.properties).toHaveProperty('name');
@@ -341,20 +336,20 @@ def main(x):
         parameters: {
           type: 'object',
           properties: {
-            x: { type: 'number' }
+            x: { type: 'number' },
           },
-          required: ['x']
-        }
+          required: ['x'],
+        },
       };
 
       await manager.addTool(spec);
       const result = await manager.handleToolCall({
         params: {
           name: 'view_source',
-          arguments: { name: 'inline_view_test' }
-        }
+          arguments: { name: 'inline_view_test' },
+        },
       });
-      
+
       expect(result.success).toBe(true);
       expect(result.name).toBe('inline_view_test');
       expect(result.language).toBe('python');
@@ -371,23 +366,23 @@ def main(x):
         parameters: {
           type: 'object',
           properties: {
-            x: { type: 'number' }
+            x: { type: 'number' },
           },
-          required: ['x']
+          required: ['x'],
         },
         returns: 'The incremented value',
         dependencies: ['lodash'],
-        timeout: 3000
+        timeout: 3000,
       };
 
       await manager.addTool(spec);
       const result = await manager.handleToolCall({
         params: {
           name: 'view_source',
-          arguments: { name: 'inline_verbose_test', verbose: true }
-        }
+          arguments: { name: 'inline_verbose_test', verbose: true },
+        },
       });
-      
+
       expect(result.success).toBe(true);
       expect(result.tool).toBeDefined();
       expect(result.tool.name).toBe('inline_verbose_test');
@@ -409,17 +404,17 @@ def main(x):
         description: 'Test viewing file-based source',
         language: 'python',
         codePath: pythonFile,
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
 
       await manager.addTool(spec);
       const result = await manager.handleToolCall({
         params: {
           name: 'view_source',
-          arguments: { name: 'file_view_test' }
-        }
+          arguments: { name: 'file_view_test' },
+        },
       });
-      
+
       expect(result.success).toBe(true);
       expect(result.name).toBe('file_view_test');
       expect(result.language).toBe('python');
@@ -433,17 +428,17 @@ def main(x):
         description: 'Test viewing file source with verbose',
         language: 'javascript',
         codePath: jsFile,
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
 
       await manager.addTool(spec);
       const result = await manager.handleToolCall({
         params: {
           name: 'view_source',
-          arguments: { name: 'file_verbose_test', verbose: true }
-        }
+          arguments: { name: 'file_verbose_test', verbose: true },
+        },
       });
-      
+
       expect(result.success).toBe(true);
       expect(result.tool).toBeDefined();
       expect(result.tool.isFileBased).toBe(true);
@@ -455,10 +450,10 @@ def main(x):
       const result = await manager.handleToolCall({
         params: {
           name: 'view_source',
-          arguments: { name: 'does_not_exist' }
-        }
+          arguments: { name: 'does_not_exist' },
+        },
       });
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toContain('Tool "does_not_exist" not found');
     });

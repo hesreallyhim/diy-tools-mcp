@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
 import { FunctionValidator } from '../validator.js';
-import { FunctionSpecification, ValidationError } from '../../types/index.js';
+import { FunctionSpecification } from '../../types/index.js';
 import { JSONSchema7 } from 'json-schema';
 
 describe('FunctionValidator', () => {
@@ -19,8 +19,8 @@ describe('FunctionValidator', () => {
         code: 'function test() { return 42; }',
         parameters: {
           type: 'object',
-          properties: {}
-        } as JSONSchema7
+          properties: {},
+        } as JSONSchema7,
       };
 
       await expect(validator.validate(spec)).resolves.not.toThrow();
@@ -34,8 +34,8 @@ describe('FunctionValidator', () => {
         codePath: './functions/test.js',
         parameters: {
           type: 'object',
-          properties: {}
-        } as JSONSchema7
+          properties: {},
+        } as JSONSchema7,
       };
 
       await expect(validator.validate(spec)).resolves.not.toThrow();
@@ -50,8 +50,8 @@ describe('FunctionValidator', () => {
         codePath: './functions/test.js',
         parameters: {
           type: 'object',
-          properties: {}
-        } as JSONSchema7
+          properties: {},
+        } as JSONSchema7,
       };
 
       await expect(validator.validate(spec)).rejects.toThrow(
@@ -66,8 +66,8 @@ describe('FunctionValidator', () => {
         language: 'javascript',
         parameters: {
           type: 'object',
-          properties: {}
-        } as JSONSchema7
+          properties: {},
+        } as JSONSchema7,
       };
 
       await expect(validator.validate(spec)).rejects.toThrow(
@@ -85,8 +85,8 @@ describe('FunctionValidator', () => {
         codePath: './functions/test.py',
         parameters: {
           type: 'object',
-          properties: {}
-        } as JSONSchema7
+          properties: {},
+        } as JSONSchema7,
       };
 
       await expect(validator.validate(spec)).resolves.not.toThrow();
@@ -100,8 +100,8 @@ describe('FunctionValidator', () => {
         codePath: './functions/test.js',
         parameters: {
           type: 'object',
-          properties: {}
-        } as JSONSchema7
+          properties: {},
+        } as JSONSchema7,
       };
 
       await expect(validator.validate(spec)).resolves.not.toThrow();
@@ -115,8 +115,8 @@ describe('FunctionValidator', () => {
         codePath: './functions/test.ts',
         parameters: {
           type: 'object',
-          properties: {}
-        } as JSONSchema7
+          properties: {},
+        } as JSONSchema7,
       };
 
       await expect(validator.validate(spec)).resolves.not.toThrow();
@@ -130,8 +130,8 @@ describe('FunctionValidator', () => {
         codePath: './functions/test.sh',
         parameters: {
           type: 'object',
-          properties: {}
-        } as JSONSchema7
+          properties: {},
+        } as JSONSchema7,
       };
 
       await expect(validator.validate(spec)).resolves.not.toThrow();
@@ -145,8 +145,8 @@ describe('FunctionValidator', () => {
         codePath: './functions/test.rb',
         parameters: {
           type: 'object',
-          properties: {}
-        } as JSONSchema7
+          properties: {},
+        } as JSONSchema7,
       };
 
       await expect(validator.validate(spec)).resolves.not.toThrow();
@@ -160,8 +160,8 @@ describe('FunctionValidator', () => {
         codePath: './functions/test.js',
         parameters: {
           type: 'object',
-          properties: {}
-        } as JSONSchema7
+          properties: {},
+        } as JSONSchema7,
       };
 
       await expect(validator.validate(spec)).resolves.not.toThrow();
@@ -175,8 +175,8 @@ describe('FunctionValidator', () => {
         codePath: './functions/test.js', // Wrong extension for Python
         parameters: {
           type: 'object',
-          properties: {}
-        } as JSONSchema7
+          properties: {},
+        } as JSONSchema7,
       };
 
       await expect(validator.validate(spec)).rejects.toThrow(
@@ -195,8 +195,8 @@ describe('FunctionValidator', () => {
         codePath: './functions/test.js',
         parameters: {
           type: 'object',
-          properties: {}
-        } as JSONSchema7
+          properties: {},
+        } as JSONSchema7,
       };
 
       // Should not throw even though there's no code to validate
@@ -211,8 +211,8 @@ describe('FunctionValidator', () => {
         code: 'function test() { return 42; }',
         parameters: {
           type: 'object',
-          properties: {}
-        } as JSONSchema7
+          properties: {},
+        } as JSONSchema7,
       };
 
       await expect(validator.validate(validSpec)).resolves.not.toThrow();
@@ -224,13 +224,11 @@ describe('FunctionValidator', () => {
         code: 'function test() { return 42', // Missing closing brace
         parameters: {
           type: 'object',
-          properties: {}
-        } as JSONSchema7
+          properties: {},
+        } as JSONSchema7,
       };
 
-      await expect(validator.validate(invalidSpec)).rejects.toThrow(
-        'Code validation failed'
-      );
+      await expect(validator.validate(invalidSpec)).rejects.toThrow('Code validation failed');
     });
   });
 });

@@ -31,7 +31,7 @@ process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('beforeExit', async () => {
   try {
     await cleanupTempFiles();
-  } catch {
+  } catch (error) {
     // Ignore errors during cleanup
   }
 });

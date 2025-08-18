@@ -4,9 +4,9 @@ export interface FunctionSpecification {
   name: string;
   description: string;
   language: SupportedLanguage;
-  code?: string;              // Now optional - for inline code
-  codePath?: string;          // New field - path to code file
-  entryPoint?: string;        // Optional entry point function name (defaults to 'main')
+  code?: string; // Now optional - for inline code
+  codePath?: string; // New field - path to code file
+  entryPoint?: string; // Optional entry point function name (defaults to 'main')
   parameters: JSONSchema7;
   returns?: string;
   dependencies?: string[];
@@ -53,7 +53,10 @@ export interface LanguageExecutor {
 }
 
 export class ToolError extends Error {
-  constructor(message: string, public code: string) {
+  constructor(
+    message: string,
+    public code: string
+  ) {
     super(message);
     this.name = 'ToolError';
   }

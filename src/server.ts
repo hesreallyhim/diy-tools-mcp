@@ -1,10 +1,10 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { 
-  ErrorCode, 
+import {
+  ErrorCode,
   McpError,
   ListToolsRequestSchema,
-  CallToolRequestSchema
+  CallToolRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { ToolManager } from './tools/manager.js';
 
@@ -33,7 +33,7 @@ export class DIYToolsServer {
     // Handle tool listing
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
       return {
-        tools: this.toolManager.getTools()
+        tools: this.toolManager.getTools(),
       };
     });
 
@@ -46,7 +46,7 @@ export class DIYToolsServer {
         if (error instanceof McpError) {
           throw error;
         }
-        
+
         throw new McpError(
           ErrorCode.InternalError,
           error instanceof Error ? error.message : 'Unknown error occurred'
@@ -62,7 +62,7 @@ export class DIYToolsServer {
     // Create and run the transport
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    
+
     console.error('DIY Tools MCP server started');
   }
 }

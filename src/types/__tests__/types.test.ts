@@ -1,9 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { 
-  isFileBasedFunction, 
-  isInlineFunction,
-  FunctionSpecification 
-} from '../index.js';
+import { isFileBasedFunction, isInlineFunction, FunctionSpecification } from '../index.js';
 
 describe('Type Guards', () => {
   describe('isFileBasedFunction', () => {
@@ -13,9 +9,9 @@ describe('Type Guards', () => {
         description: 'test function',
         language: 'python',
         codePath: '/path/to/file.py',
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
-      
+
       expect(isFileBasedFunction(spec)).toBe(true);
       expect(isInlineFunction(spec)).toBe(false);
     });
@@ -26,9 +22,9 @@ describe('Type Guards', () => {
         description: 'test function',
         language: 'python',
         code: 'def main(): pass',
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
-      
+
       expect(isFileBasedFunction(spec)).toBe(false);
       expect(isInlineFunction(spec)).toBe(true);
     });
@@ -40,9 +36,9 @@ describe('Type Guards', () => {
         language: 'python',
         code: 'def main(): pass',
         codePath: '/path/to/file.py',
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
-      
+
       expect(isFileBasedFunction(spec)).toBe(false);
       expect(isInlineFunction(spec)).toBe(false);
     });
@@ -52,9 +48,9 @@ describe('Type Guards', () => {
         name: 'test',
         description: 'test function',
         language: 'python',
-        parameters: { type: 'object', properties: {} }
+        parameters: { type: 'object', properties: {} },
       };
-      
+
       expect(isFileBasedFunction(spec)).toBe(false);
       expect(isInlineFunction(spec)).toBe(false);
     });

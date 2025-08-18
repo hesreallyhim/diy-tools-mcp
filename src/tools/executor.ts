@@ -1,4 +1,10 @@
-import { StoredFunction, ExecutionResult, ExecutionError, FunctionArgs, LanguageExecutor } from '../types/index.js';
+import {
+  StoredFunction,
+  ExecutionResult,
+  ExecutionError,
+  FunctionArgs,
+  LanguageExecutor,
+} from '../types/index.js';
 import { getExecutor } from '../utils/language.js';
 import { FunctionValidator } from './validator.js';
 import { FunctionStorage } from '../storage/functions.js';
@@ -30,7 +36,7 @@ export class FunctionExecutor {
       // Execute the function with timeout
       const timeout = func.timeout || TIMEOUTS.DEFAULT_EXECUTION;
       const startTime = Date.now();
-      
+
       // Execute with timeout
       const result = await this.executeWithTimeout(
         executor,
@@ -39,24 +45,24 @@ export class FunctionExecutor {
         timeout,
         func.entryPoint // Pass entry point for configurable function names
       );
-      
+
       return {
         ...result,
-        executionTime: Date.now() - startTime
+        executionTime: Date.now() - startTime,
       };
     } catch (error) {
       if (error instanceof Error) {
         return {
           success: false,
           error: error.message,
-          executionTime: 0
+          executionTime: 0,
         };
       }
-      
+
       return {
         success: false,
         error: 'Unknown error occurred',
-        executionTime: 0
+        executionTime: 0,
       };
     }
   }
@@ -79,10 +85,7 @@ export class FunctionExecutor {
       // Always use standard code execution for now
       // The optimized file execution path needs the files to be properly wrapped
       // which they are not when copied from user's source files
-      const result = await Promise.race([
-        executor.execute(code, args, entryPoint),
-        timeoutPromise
-      ]);
+      const result = await Promise.race([executor.execute(code, args, entryPoint), timeoutPromise]);
       clearTimeout(timeoutId!);
       return result;
     } catch (error) {
@@ -91,7 +94,7 @@ export class FunctionExecutor {
         return {
           success: false,
           error: `Execution timed out after ${timeout}ms`,
-          executionTime: timeout
+          executionTime: timeout,
         };
       }
       throw error;

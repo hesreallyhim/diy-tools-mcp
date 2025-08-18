@@ -8,7 +8,7 @@ import { join } from 'path';
 describe('Configurable Entry Points', () => {
   let executor: FunctionExecutor;
   let storage: FunctionStorage;
-  
+
   const FUNCTIONS_DIR = join(process.cwd(), 'functions');
   const FUNCTION_CODE_DIR = join(process.cwd(), 'function-code');
 
@@ -22,7 +22,7 @@ describe('Configurable Entry Points', () => {
     try {
       await rmdir(FUNCTIONS_DIR, { recursive: true });
       await rmdir(FUNCTION_CODE_DIR, { recursive: true });
-    } catch {
+    } catch (error) {
       // Ignore cleanup errors
     }
   });
@@ -45,14 +45,14 @@ def calculate_product(a, b):
           type: 'object',
           properties: {
             a: { type: 'number' },
-            b: { type: 'number' }
-          }
-        }
+            b: { type: 'number' },
+          },
+        },
       };
 
       const func = await storage.save(spec);
       const result = await executor.execute(func, { a: 5, b: 3 });
-      
+
       expect(result.success).toBe(true);
       expect(result.output).toBe(8);
     });
@@ -82,9 +82,9 @@ def divide(a, b):
           type: 'object',
           properties: {
             a: { type: 'number' },
-            b: { type: 'number' }
-          }
-        }
+            b: { type: 'number' },
+          },
+        },
       };
 
       const addFunc = await storage.save(addSpec);
@@ -103,9 +103,9 @@ def divide(a, b):
           type: 'object',
           properties: {
             a: { type: 'number' },
-            b: { type: 'number' }
-          }
-        }
+            b: { type: 'number' },
+          },
+        },
       };
 
       const multiplyFunc = await storage.save(multiplySpec);
@@ -130,14 +130,14 @@ def other_function(value):
         parameters: {
           type: 'object',
           properties: {
-            value: { type: 'number' }
-          }
-        }
+            value: { type: 'number' },
+          },
+        },
       };
 
       const func = await storage.save(spec);
       const result = await executor.execute(func, { value: 21 });
-      
+
       expect(result.success).toBe(true);
       expect(result.output).toBe(42);
     });
@@ -155,14 +155,14 @@ def calculate(value):
         parameters: {
           type: 'object',
           properties: {
-            value: { type: 'number' }
-          }
-        }
+            value: { type: 'number' },
+          },
+        },
       };
 
       const func = await storage.save(spec);
       const result = await executor.execute(func, { value: 10 });
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toContain("Function 'nonexistent' not found");
     });
@@ -187,14 +187,14 @@ function validateData(args) {
         parameters: {
           type: 'object',
           properties: {
-            input: { type: 'string' }
-          }
-        }
+            input: { type: 'string' },
+          },
+        },
       };
 
       const func = await storage.save(spec);
       const result = await executor.execute(func, { input: 'hello' });
-      
+
       expect(result.success).toBe(true);
       expect(result.output).toEqual({ processed: 'HELLO' });
     });
@@ -218,14 +218,14 @@ module.exports.validate = function(args) {
           type: 'object',
           properties: {
             a: { type: 'number' },
-            b: { type: 'number' }
-          }
-        }
+            b: { type: 'number' },
+          },
+        },
       };
 
       const func = await storage.save(spec);
       const result = await executor.execute(func, { a: 7, b: 3 });
-      
+
       expect(result.success).toBe(true);
       expect(result.output).toBe(10);
     });
@@ -251,13 +251,13 @@ validate_file() {
         entryPoint: 'process_file',
         parameters: {
           type: 'object',
-          properties: {}
-        }
+          properties: {},
+        },
       };
 
       const func = await storage.save(spec);
       const result = await executor.execute(func, {});
-      
+
       expect(result.success).toBe(true);
       expect(result.output).toEqual({ status: 'processed' });
     });
@@ -283,14 +283,14 @@ end
           type: 'object',
           properties: {
             income: { type: 'number' },
-            rate: { type: 'number' }
-          }
-        }
+            rate: { type: 'number' },
+          },
+        },
       };
 
       const func = await storage.save(spec);
       const result = await executor.execute(func, { income: 1000, rate: 0.2 });
-      
+
       expect(result.success).toBe(true);
       expect(result.output).toBe(200);
     });

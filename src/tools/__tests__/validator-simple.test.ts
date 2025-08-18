@@ -12,44 +12,44 @@ describe('FunctionValidator Logic Tests', () => {
         description: 'test',
         language: 'javascript',
         code: 'console.log("test")',
-        parameters: { type: 'object' } as JSONSchema7
+        parameters: { type: 'object' } as JSONSchema7,
       };
-      
+
       expect(inlineSpec.code).toBeDefined();
       expect(inlineSpec.codePath).toBeUndefined();
-      
+
       // Valid file-based function
       const fileSpec: FunctionSpecification = {
         name: 'test',
         description: 'test',
         language: 'javascript',
         codePath: './test.js',
-        parameters: { type: 'object' } as JSONSchema7
+        parameters: { type: 'object' } as JSONSchema7,
       };
-      
+
       expect(fileSpec.code).toBeUndefined();
       expect(fileSpec.codePath).toBeDefined();
     });
 
     it('should validate file extensions match language', () => {
       const languageExtensions = {
-        'python': '.py',
-        'javascript': '.js',
-        'typescript': '.ts',
-        'bash': '.sh',
-        'ruby': '.rb',
-        'node': '.js'
+        python: '.py',
+        javascript: '.js',
+        typescript: '.ts',
+        bash: '.sh',
+        ruby: '.rb',
+        node: '.js',
       };
-      
+
       Object.entries(languageExtensions).forEach(([language, extension]) => {
         const spec: FunctionSpecification = {
           name: 'test',
           description: 'test',
           language: language as any,
           codePath: `./test${extension}`,
-          parameters: { type: 'object' } as JSONSchema7
+          parameters: { type: 'object' } as JSONSchema7,
         };
-        
+
         expect(spec.codePath?.endsWith(extension)).toBe(true);
       });
     });

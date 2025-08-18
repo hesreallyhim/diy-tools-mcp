@@ -1,9 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { 
-  FunctionSpecification, 
-  isFileBasedFunction, 
-  isInlineFunction 
-} from '../index.js';
+import { FunctionSpecification, isFileBasedFunction, isInlineFunction } from '../index.js';
 import { JSONSchema7 } from 'json-schema';
 
 describe('Type Guards', () => {
@@ -14,9 +10,9 @@ describe('Type Guards', () => {
         description: 'test function',
         language: 'javascript',
         code: 'console.log("test")',
-        parameters: { type: 'object' } as JSONSchema7
+        parameters: { type: 'object' } as JSONSchema7,
       };
-      
+
       expect(isInlineFunction(spec)).toBe(true);
       expect(isFileBasedFunction(spec)).toBe(false);
     });
@@ -27,9 +23,9 @@ describe('Type Guards', () => {
         description: 'test function',
         language: 'javascript',
         codePath: './test.js',
-        parameters: { type: 'object' } as JSONSchema7
+        parameters: { type: 'object' } as JSONSchema7,
       };
-      
+
       expect(isInlineFunction(spec)).toBe(false);
     });
 
@@ -40,9 +36,9 @@ describe('Type Guards', () => {
         language: 'javascript',
         code: 'console.log("test")',
         codePath: './test.js',
-        parameters: { type: 'object' } as JSONSchema7
+        parameters: { type: 'object' } as JSONSchema7,
       };
-      
+
       expect(isInlineFunction(spec)).toBe(false);
     });
 
@@ -51,9 +47,9 @@ describe('Type Guards', () => {
         name: 'test',
         description: 'test function',
         language: 'javascript',
-        parameters: { type: 'object' } as JSONSchema7
+        parameters: { type: 'object' } as JSONSchema7,
       };
-      
+
       expect(isInlineFunction(spec)).toBe(false);
     });
   });
@@ -65,9 +61,9 @@ describe('Type Guards', () => {
         description: 'test function',
         language: 'javascript',
         codePath: './test.js',
-        parameters: { type: 'object' } as JSONSchema7
+        parameters: { type: 'object' } as JSONSchema7,
       };
-      
+
       expect(isFileBasedFunction(spec)).toBe(true);
       expect(isInlineFunction(spec)).toBe(false);
     });
@@ -78,9 +74,9 @@ describe('Type Guards', () => {
         description: 'test function',
         language: 'javascript',
         code: 'console.log("test")',
-        parameters: { type: 'object' } as JSONSchema7
+        parameters: { type: 'object' } as JSONSchema7,
       };
-      
+
       expect(isFileBasedFunction(spec)).toBe(false);
     });
 
@@ -91,9 +87,9 @@ describe('Type Guards', () => {
         language: 'javascript',
         code: 'console.log("test")',
         codePath: './test.js',
-        parameters: { type: 'object' } as JSONSchema7
+        parameters: { type: 'object' } as JSONSchema7,
       };
-      
+
       expect(isFileBasedFunction(spec)).toBe(false);
     });
 
@@ -102,9 +98,9 @@ describe('Type Guards', () => {
         name: 'test',
         description: 'test function',
         language: 'javascript',
-        parameters: { type: 'object' } as JSONSchema7
+        parameters: { type: 'object' } as JSONSchema7,
       };
-      
+
       expect(isFileBasedFunction(spec)).toBe(false);
     });
   });
@@ -119,9 +115,9 @@ describe('Type Guards', () => {
         parameters: { type: 'object' } as JSONSchema7,
         returns: 'void',
         dependencies: ['numpy'],
-        timeout: 5000
+        timeout: 5000,
       };
-      
+
       expect(spec.code).toBe('def test(): pass');
       expect(spec.codePath).toBeUndefined();
       expect(isInlineFunction(spec)).toBe(true);
@@ -135,9 +131,9 @@ describe('Type Guards', () => {
         codePath: './functions/test.ts',
         parameters: { type: 'object' } as JSONSchema7,
         returns: 'string',
-        timeout: 10000
+        timeout: 10000,
       };
-      
+
       expect(spec.codePath).toBe('./functions/test.ts');
       expect(spec.code).toBeUndefined();
       expect(isFileBasedFunction(spec)).toBe(true);
