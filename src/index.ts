@@ -2,7 +2,7 @@
 
 import { DIYToolsServer } from './server.js';
 import { cleanupTempFiles } from './utils/cleanup.js';
-import { logger } from './utils/logger.js'; // Pre-commit hook test
+import { logger } from './utils/logger.js';
 
 async function main() {
   try {
