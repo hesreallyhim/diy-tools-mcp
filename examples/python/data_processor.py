@@ -10,12 +10,12 @@ from io import StringIO
 def main(data, format, operation="parse"):
     """
     Process data in various formats with different operations.
-    
+
     Args:
         data (str): Raw data to process
         format (str): Data format - 'csv' or 'json'
         operation (str): Operation to perform - 'parse', 'filter', 'transform'
-    
+
     Returns:
         dict: Processed data with metadata
     """
@@ -40,7 +40,7 @@ def process_csv(data, operation):
     """Process CSV data"""
     reader = csv.DictReader(StringIO(data))
     rows = list(reader)
-    
+
     if operation == "parse":
         return {
             "success": True,
@@ -50,7 +50,12 @@ def process_csv(data, operation):
         }
     elif operation == "filter":
         # Example: filter rows with non-empty first column
-        filtered = [row for row in rows if row.get(reader.fieldnames[0])]
+        filtered = [
+            row for row in rows
+            if reader.fieldnames
+            and row.get(reader.fieldnames[0])
+            and row[reader.fieldnames[0]]
+        ]
         return {
             "success": True,
             "original_count": len(rows),
@@ -78,7 +83,7 @@ def process_csv(data, operation):
 def process_json(data, operation):
     """Process JSON data"""
     parsed = json.loads(data)
-    
+
     if operation == "parse":
         return {
             "success": True,
@@ -97,7 +102,9 @@ def process_json(data, operation):
         return {
             "success": True,
             "original_size": len(parsed) if hasattr(parsed, '__len__') else 1,
-            "filtered_size": len(filtered) if hasattr(filtered, '__len__') else 1,
+            "filtered_size": (
+                len(filtered) if hasattr(filtered, '__len__') else 1
+            ),
             "data": filtered
         }
     elif operation == "transform":
