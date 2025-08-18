@@ -35,9 +35,6 @@ diy-tools-mcp/
 ├── docs/                    # Documentation
 │   └── TESTING.md           # Testing guide
 │
-├── tickets/                 # Development tickets
-│   └── *.md                 # Feature implementation tickets
-│
 ├── dist/                    # Build output (gitignored)
 ├── functions/               # Stored function metadata (gitignored)
 ├── function-code/           # Copied function files (gitignored)
@@ -55,11 +52,10 @@ diy-tools-mcp/
 
 ### Documentation
 - `README.md` - Main project documentation
-- `SETUP.md` - Installation and setup guide
-- `PROJECT-STATUS.md` - Development progress tracking
+- `CONTRIBUTING.md` - Contribution guidelines
+- `DEVELOPMENT.md` - Development scripts and workflow
+- `SECURITY.md` - Security policy
 - `PROJECT-STRUCTURE.md` - This file
-- `TEST-NOTES.md` - Testing documentation
-- `docs/TESTING.md` - Comprehensive testing guide
 
 ### Entry Points
 - `src/index.ts` - Main application entry
@@ -88,7 +84,6 @@ diy-tools-mcp/
 ## Development Workflow
 
 1. **Adding Features**
-   - Create ticket in `tickets/`
    - Implement in appropriate `src/` module
    - Add tests in `src/__tests__/`
    - Update documentation
@@ -129,4 +124,3 @@ See [DEVELOPMENT.md](./DEVELOPMENT.md) for detailed information about build comm
 - **Contributing Guidelines**: See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to contribute
 - **Development Guide**: See [DEVELOPMENT.md](./DEVELOPMENT.md) for available scripts and commands
 - **Security Policy**: See [SECURITY.md](./SECURITY.md) for security information
-- **Tickets**: Check `INTERNAL/tickets/` for planned features and improvements
