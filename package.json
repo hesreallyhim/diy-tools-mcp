@@ -1,6 +1,6 @@
 {
   "name": "diy-tools-mcp",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "MCP server that allows users to dynamically add custom tools/functions at runtime",
   "main": "dist/index.js",
   "type": "module",
@@ -35,11 +35,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hesrealllyhim/diy-tools-mcp.git"
+    "url": "git+https://github.com/hesreallyhim/diy-tools-mcp.git"
   },
-  "homepage": "https://github.com/hesrealllyhim/diy-tools-mcp#readme",
+  "homepage": "https://github.com/hesreallyhim/diy-tools-mcp#readme",
   "bugs": {
-    "url": "https://github.com/hesrealllyhim/diy-tools-mcp/issues"
+    "url": "https://github.com/hesreallyhim/diy-tools-mcp/issues"
   },
   "keywords": [
     "mcp",
