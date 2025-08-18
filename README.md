@@ -1,5 +1,7 @@
 # DIY Tools MCP Server
 
+[![CI](https://github.com/yourusername/diy-tools-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/diy-tools-mcp/actions/workflows/ci.yml)
+
 A Model Context Protocol (MCP) server that allows you to create custom tools/functions at runtime in any programming language and expose them to Claude or other MCP clients.
 
 ## Overview
