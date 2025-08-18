@@ -39,6 +39,7 @@
     "functions/",
     "function-code/",
     "test-*-functions/",
-    "test-fixtures/"
+    "test-fixtures/",
+    "INTERNAL/"
   ]
 }
