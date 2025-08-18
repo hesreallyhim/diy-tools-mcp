@@ -2,24 +2,31 @@
 
 import { DIYToolsServer } from './server.js';
 import { cleanupTempFiles } from './utils/cleanup.js';
+import { logger } from './utils/logger.js';
 
 async function main() {
   try {
     const server = new DIYToolsServer();
     await server.start();
   } catch (error) {
-    console.error('Failed to start server:', error);
+    logger.error('Failed to start server', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: process.env.DEBUG === 'true' ? (error as Error).stack : undefined,
+    });
     process.exit(1);
   }
 }
 
 // Handle graceful shutdown with cleanup
 async function shutdown(signal: string) {
-  console.error(`Shutting down (${signal})...`);
+  logger.info(`Shutting down server (${signal})...`);
   try {
     await cleanupTempFiles();
+    logger.info('Cleanup completed successfully');
   } catch (error) {
-    console.error('Error during cleanup:', error);
+    logger.error('Error during cleanup', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
   process.exit(0);
 }
@@ -33,10 +40,14 @@ process.on('beforeExit', async () => {
     await cleanupTempFiles();
   } catch (error) {
     // Ignore errors during cleanup
+    logger.debug('Cleanup error on beforeExit', { error });
   }
 });
 
 main().catch((error) => {
-  console.error('Unhandled error:', error);
+  logger.error('Unhandled error', {
+    error: error instanceof Error ? error.message : 'Unknown error',
+    stack: process.env.DEBUG === 'true' ? (error as Error).stack : undefined,
+  });
   process.exit(1);
 });

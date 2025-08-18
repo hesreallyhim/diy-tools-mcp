@@ -11,6 +11,8 @@ import { FunctionValidator } from './validator.js';
 import { FunctionExecutor } from './executor.js';
 import { SecurityValidator } from '../utils/security.js';
 import { TIMEOUTS } from '../constants.js';
+import { logger, logToolRegistration, logFunctionExecution, createCorrelationId } from '../utils/logger.js';
+import { NotFoundError, ValidationError, ExecutionError } from '../utils/errors.js';
 
 export class ToolManager {
   private storage: FunctionStorage;
@@ -102,17 +104,33 @@ export class ToolManager {
     return true;
   }
 
-  async executeTool(name: string, args: FunctionArgs): Promise<ExecutionResult> {
+  async executeTool(name: string, args: FunctionArgs, correlationId?: string): Promise<ExecutionResult> {
     const tool = this.registeredTools.get(name);
     if (!tool) {
+      const error = `Tool "${name}" not found`;
+      logger.warn(error, { tool: name, correlationId });
       return {
         success: false,
-        error: `Tool "${name}" not found`,
+        error,
         executionTime: 0,
       };
     }
-
-    return await this.executor.execute(tool, args);
+    
+    const startTime = Date.now();
+    logger.debug(`Executing tool: ${name}`, { tool: name, correlationId });
+    
+    try {
+      const result = await this.executor.execute(tool, args);
+      const duration = Date.now() - startTime;
+      
+      logFunctionExecution(name, duration, result.success, undefined, correlationId);
+      
+      return result;
+    } catch (error) {
+      const duration = Date.now() - startTime;
+      logFunctionExecution(name, duration, false, error as Error, correlationId);
+      throw error;
+    }
   }
 
   getTools(): Array<{ name: string; description: string; inputSchema: any }> {
@@ -235,20 +253,38 @@ export class ToolManager {
 
   async handleToolCall(request: any): Promise<any> {
     const { name, arguments: args } = request.params;
+    const correlationId = createCorrelationId();
 
     switch (name) {
       case 'add_tool': {
         const spec = args as unknown as FunctionSpecification;
-        const result = await this.addTool(spec);
-        return {
-          success: true,
-          tool: {
-            name: result.name,
-            description: result.description,
-            language: result.language,
-            id: result.id,
-          },
-        };
+        logger.debug(`Adding tool: ${spec.name}`, { correlationId: correlationId, language: spec.language });
+        
+        try {
+          const result = await this.addTool(spec);
+          logToolRegistration(
+            result.name,
+            result.language,
+            !!result.codePath,
+            correlationId
+          );
+          
+          return {
+            success: true,
+            tool: {
+              name: result.name,
+              description: result.description,
+              language: result.language,
+              id: result.id,
+            },
+          };
+        } catch (error) {
+          logger.error(`Failed to add tool: ${spec.name}`, {
+            correlationId: correlationId,
+            error: error instanceof Error ? error.message : 'Unknown error',
+          });
+          throw error;
+        }
       }
 
       case 'remove_tool': {
@@ -317,9 +353,9 @@ export class ToolManager {
 
       default: {
         // Execute custom tool
-        const result = await this.executeTool(name, args);
+        const result = await this.executeTool(name, args, correlationId);
         if (!result.success) {
-          throw new Error(result.error || 'Execution failed');
+          throw new ExecutionError(result.error || 'Execution failed');
         }
         return result.output;
       }
