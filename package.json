@@ -17,8 +17,15 @@
     "build": "tsc && chmod +x dist/index.js",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist coverage *.tsbuildinfo",
+    "clean:all": "npm run clean && rm -rf node_modules functions function-code test-*",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --runInBand",
+    "test:watch": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --watch",
+    "test:coverage": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --coverage",
+    "test:unit": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --testPathIgnorePatterns=integration",
+    "test:integration": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --testPathPattern=integration",
+    "typecheck": "tsc --noEmit",
+    "demo": "tsx demo.ts",
     "prepublishOnly": "npm run clean && npm run build && npm test"
   },
   "repository": {
