@@ -75,32 +75,13 @@ npm run dev
 npm test
 ```
 
-### Available Scripts
+### Development Scripts
 
-```bash
-# Development
-npm run dev              # Start development server with auto-reload
-npm run build            # Build the project for production
-npm start                # Start the production server
+See [DEVELOPMENT.md](./DEVELOPMENT.md) for a complete list of available npm scripts and their usage.
 
-# Testing
-npm test                 # Run all tests
-npm run test:watch       # Run tests in watch mode
-npm run test:coverage    # Run tests with coverage report
-npm run test:unit        # Run only unit tests
-npm run test:integration # Run only integration tests
+### Project Structure
 
-# Code Quality
-npm run lint             # Check code for linting errors
-npm run lint:fix         # Fix auto-fixable linting errors
-npm run format           # Format code with Prettier
-npm run format:check     # Check if code is properly formatted
-npm run typecheck        # Run TypeScript type checking
-
-# Cleanup
-npm run clean            # Remove build artifacts
-npm run clean:all        # Remove build artifacts and dependencies
-```
+See [PROJECT-STRUCTURE.md](./PROJECT-STRUCTURE.md) for detailed information about the codebase organization and architecture.
 
 ## Code Style Guidelines
 
@@ -198,20 +179,8 @@ docs(api): update function registration examples
 - **Security tests**: Validate security measures and protections
 
 ### Running Tests
-```bash
-# Run all tests
-npm test
 
-# Run tests in watch mode during development
-npm run test:watch
-
-# Run with coverage report
-npm run test:coverage
-
-# Run specific test types
-npm run test:unit
-npm run test:integration
-```
+See [DEVELOPMENT.md](./DEVELOPMENT.md#testing) for testing commands and guidelines.
 
 ### Test Guidelines
 - **Descriptive test names**: Clearly describe what is being tested
@@ -290,9 +259,7 @@ The project uses GitHub Actions for continuous integration:
 ## Security Considerations
 
 ### Reporting Security Issues
-- **Do not** create public issues for security vulnerabilities
-- **Email maintainers** directly for security concerns
-- **Provide details** about the vulnerability and potential impact
+See [SECURITY.md](./SECURITY.md) for detailed security reporting procedures.
 
 ### Security Guidelines
 - **Validate all inputs** from external sources
@@ -300,26 +267,6 @@ The project uses GitHub Actions for continuous integration:
 - **Limit resource usage** to prevent denial of service
 - **Review dependencies** for known vulnerabilities
 - **Follow principle of least privilege** in code design
-
-## Project Structure
-
-Understanding the project layout will help you navigate and contribute effectively:
-
-```
-diy-tools-mcp/
-├── src/                    # Source code
-│   ├── __tests__/         # Integration tests
-│   ├── server.ts          # Main MCP server
-│   ├── storage/           # Function persistence
-│   ├── tools/             # Tool management and execution
-│   ├── types/             # TypeScript type definitions
-│   └── utils/             # Utilities and helpers
-├── examples/              # Example functions and usage
-├── INTERNAL/              # Development documentation
-├── dist/                  # Built artifacts (generated)
-├── coverage/              # Test coverage reports (generated)
-└── docs/                  # Project documentation
-```
 
 ## Getting Help
 
@@ -329,8 +276,10 @@ diy-tools-mcp/
 - **Code comments**: For clarification on specific code sections
 
 ### Resources
-- **README.md**: Project overview and usage instructions
-- **DEVELOPMENT.md**: Detailed development setup and architecture
+- **[README.md](./README.md)**: Project overview and usage instructions
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)**: Available scripts and commands
+- **[PROJECT-STRUCTURE.md](./PROJECT-STRUCTURE.md)**: Codebase organization
+- **[SECURITY.md](./SECURITY.md)**: Security policies and procedures
 - **Examples directory**: Sample functions and usage patterns
 - **Tests**: Examples of expected behavior and usage
 

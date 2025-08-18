@@ -122,14 +122,11 @@ diy-tools-mcp/
 
 ## Build and Distribution
 
-```bash
-npm run build     # Compile TypeScript
-npm run clean     # Remove build artifacts
-npm start         # Run the server
-npm run dev       # Development mode
-npm test          # Run tests
-```
+See [DEVELOPMENT.md](./DEVELOPMENT.md) for detailed information about build commands and development workflow.
 
-## Contributing
+## Additional Resources
 
-See `README.md` for contribution guidelines and `tickets/` for planned features.
+- **Contributing Guidelines**: See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to contribute
+- **Development Guide**: See [DEVELOPMENT.md](./DEVELOPMENT.md) for available scripts and commands
+- **Security Policy**: See [SECURITY.md](./SECURITY.md) for security information
+- **Tickets**: Check `INTERNAL/tickets/` for planned features and improvements
