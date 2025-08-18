@@ -18,7 +18,7 @@ export class DIYToolsServer {
     this.server = new Server(
       {
         name: 'diy-tools-mcp',
-        version: '1.0.0',
+        version: '1.2.0',
       },
       {
         capabilities: {
@@ -43,13 +43,13 @@ export class DIYToolsServer {
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const correlationId = createCorrelationId();
       const toolName = request.params.name;
-      
-      logger.debug(`Tool call received: ${toolName}`, { 
-        correlationId, 
+
+      logger.debug(`Tool call received: ${toolName}`, {
+        correlationId,
         tool: toolName,
-        hasArgs: !!request.params.arguments 
+        hasArgs: !!request.params.arguments,
       });
-      
+
       try {
         const result = await this.toolManager.handleToolCall(request);
         logger.debug(`Tool call completed: ${toolName}`, { correlationId, success: true });
@@ -60,16 +60,13 @@ export class DIYToolsServer {
           error: error instanceof Error ? error.message : 'Unknown error',
           stack: process.env.DEBUG === 'true' ? (error as Error).stack : undefined,
         });
-        
+
         if (error instanceof McpError) {
           throw error;
         }
-        
+
         if (error instanceof DIYToolsError) {
-          throw new McpError(
-            ErrorCode.InternalError,
-            getUserFriendlyMessage(error)
-          );
+          throw new McpError(ErrorCode.InternalError, getUserFriendlyMessage(error));
         }
 
         throw new McpError(
@@ -82,7 +79,7 @@ export class DIYToolsServer {
 
   async start(): Promise<void> {
     logger.info('Starting DIY Tools MCP server...');
-    
+
     try {
       // Initialize tool manager (load existing functions)
       await this.toolManager.initialize();
