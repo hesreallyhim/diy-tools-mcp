@@ -3,17 +3,14 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "include": [
-    "src/**/*",
-    "demo.ts",
-    "INTERNAL/temp-tests/*.ts"
-  ],
+  "include": ["src/**/*", "demo.ts"],
   "exclude": [
     "node_modules",
     "dist",
     "coverage",
     "functions",
     "function-code",
-    "test-fixtures"
+    "test-fixtures",
+    "INTERNAL"
   ]
 }
