@@ -112,7 +112,7 @@ class PythonExecutor extends BaseExecutor {
   async executeFile(
     filepath: string,
     args: FunctionArgs,
-    _entryPoint: string = 'main'
+    entryPoint: string = 'main'
   ): Promise<ExecutionResult> {
     const startTime = Date.now();
 
@@ -134,7 +134,7 @@ class PythonExecutor extends BaseExecutor {
 
         return {
           success: false,
-          error,
+          error: errorMsg,
           executionTime: Date.now() - startTime,
         };
       }
@@ -156,7 +156,7 @@ class PythonExecutor extends BaseExecutor {
     } catch {
       return {
         success: false,
-        error: "Unknown error",
+        error: 'Unknown error',
         executionTime: Date.now() - startTime,
       };
     }
@@ -193,7 +193,7 @@ class PythonExecutor extends BaseExecutor {
   async execute(
     code: string,
     args: FunctionArgs,
-    _entryPoint: string = 'main'
+    entryPoint: string = 'main'
   ): Promise<ExecutionResult> {
     // Check if the code already has the wrapper (for file-based functions)
     const hasWrapper =
@@ -285,7 +285,7 @@ class JavaScriptExecutor extends BaseExecutor {
   async executeFile(
     filepath: string,
     args: FunctionArgs,
-    _entryPoint: string = 'main'
+    entryPoint: string = 'main'
   ): Promise<ExecutionResult> {
     const startTime = Date.now();
 
@@ -360,7 +360,7 @@ try {
     } catch {
       return {
         success: false,
-        error: "Unknown error",
+        error: 'Unknown error',
         executionTime: Date.now() - startTime,
       };
     } finally {
@@ -404,7 +404,7 @@ if (typeof ${entryPoint} !== 'function') {
   async execute(
     code: string,
     args: FunctionArgs,
-    _entryPoint: string = 'main'
+    entryPoint: string = 'main'
   ): Promise<ExecutionResult> {
     const wrappedCode = `
 ${code}
@@ -529,7 +529,7 @@ class BashExecutor extends BaseExecutor {
   async execute(
     code: string,
     args: FunctionArgs,
-    _entryPoint: string = 'main'
+    entryPoint: string = 'main'
   ): Promise<ExecutionResult> {
     const wrappedCode = `#!/bin/bash
 set -e
@@ -620,7 +620,7 @@ class RubyExecutor extends BaseExecutor {
   async execute(
     code: string,
     args: FunctionArgs,
-    _entryPoint: string = 'main'
+    entryPoint: string = 'main'
   ): Promise<ExecutionResult> {
     const wrappedCode = `
 require 'json'
