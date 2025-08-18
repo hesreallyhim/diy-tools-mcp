@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, jest } from '@jest/globals';
-import { ToolManager } from '../tools/manager.js';
+import { ToolManager } from '../manager.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { FunctionSpecification } from '../types/index.js';
+import { FunctionSpecification } from '../../types/index.js';
 import { writeFile, rm, mkdir } from 'fs/promises';
 import { join } from 'path';
 

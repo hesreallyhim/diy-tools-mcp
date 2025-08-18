@@ -3,7 +3,7 @@ import {
   isFileBasedFunction, 
   isInlineFunction,
   FunctionSpecification 
-} from '../types/index.js';
+} from '../index.js';
 
 describe('Type Guards', () => {
   describe('isFileBasedFunction', () => {

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
-import { FunctionStorage } from '../storage/functions.js';
-import { FunctionSpecification, isFileBasedFunction, isInlineFunction } from '../types/index.js';
+import { FunctionStorage } from '../functions.js';
+import { FunctionSpecification, isFileBasedFunction, isInlineFunction } from '../../types/index.js';
 import { writeFile, rm, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';

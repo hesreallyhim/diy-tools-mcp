@@ -1,7 +1,7 @@
 import { describe, expect, it, beforeEach, afterEach } from '@jest/globals';
-import { FunctionExecutor } from '../tools/executor.js';
-import { FunctionStorage } from '../storage/functions.js';
-import { FunctionSpecification } from '../types/index.js';
+import { FunctionExecutor } from '../../tools/executor.js';
+import { FunctionStorage } from '../../storage/functions.js';
+import { FunctionSpecification } from '../../types/index.js';
 import { rmdir } from 'fs/promises';
 import { join } from 'path';
 
