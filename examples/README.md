@@ -46,24 +46,34 @@ Point directly to the example file:
 ## Example Categories
 
 ### Data Processing
-- `python/data_processor.py` - CSV/JSON data manipulation
+- `python/data_processor.py` - CSV/JSON data manipulation with parsing and transformation
+- `python/web_scraper.py` - HTML parsing and data extraction utilities
+- `javascript/api_client.js` - Mock API interactions and data handling
+- `typescript/data_transformer.ts` - Advanced data transformation operations
+
+### Text & String Utilities
+- `python/text_analyzer.py` - Text statistics and analysis (entry point example)
+- `javascript/string_utils.js` - Comprehensive string manipulation functions
 - `javascript/json_transformer.js` - JSON structure transformation
+- `ruby/text_analyzer.rb` - Advanced text analysis with NLP-like features
 
-### Text Utilities
-- `python/text_analyzer.py` - Text statistics and analysis
-- `javascript/markdown_generator.js` - Generate markdown documents
+### Mathematical Operations
+- `python/simple_math.py` - Mathematical operations and statistical functions
+- `python/math_utils.py` - Mathematical utility functions (entry point example)
 
-### System Utilities
+### Date & Time
+- `javascript/date_formatter.js` - Date formatting and manipulation utilities
+
+### System & File Operations
 - `bash/system_info.sh` - Gather system information
-- `python/file_organizer.py` - Organize files by type/date
+- `bash/file_operations.sh` - Advanced file and directory operations
 
-### Web Utilities
-- `javascript/url_parser.js` - Parse and validate URLs
-- `python/web_scraper.py` - Basic web scraping
+### Type Validation & Schema
+- `typescript/type_validator.ts` - Runtime type validation and schema checking
 
-### Math & Calculations
-- `python/calculator.py` - Advanced calculations
-- `typescript/statistics.ts` - Statistical functions
+### Entry Point Examples
+Located in `entry-points/`:
+- `math_utils.py` - Example of function with multiple entry points
 
 ## Testing Examples
 
