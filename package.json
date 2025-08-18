@@ -26,6 +26,10 @@
     "test:integration": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --testPathPattern=integration",
     "typecheck": "tsc --noEmit",
     "demo": "tsx demo.ts",
+    "lint": "eslint 'src/**/*.ts' 'demo.ts' 'INTERNAL/temp-tests/*.ts'",
+    "lint:fix": "eslint 'src/**/*.ts' 'demo.ts' 'INTERNAL/temp-tests/*.ts' --fix",
+    "format": "prettier --write 'src/**/*.ts' 'demo.ts' 'INTERNAL/temp-tests/*.ts'",
+    "format:check": "prettier --check 'src/**/*.ts' 'demo.ts' 'INTERNAL/temp-tests/*.ts'",
     "prepublishOnly": "npm run clean && npm run build && npm test"
   },
   "repository": {
@@ -55,7 +59,13 @@
     "@types/json-schema": "^7.0.15",
     "@types/node": "^22.10.5",
     "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.39.1",
+    "@typescript-eslint/parser": "^8.39.1",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "jest": "^29.7.0",
+    "prettier": "^3.6.2",
     "ts-jest": "^29.4.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"

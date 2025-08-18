@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Config files
+*.js
+*.mjs
+*.cjs
+jest.config.js
+
+# Test data
+functions/
+function-code/
+test-*-functions/
+test-*-integration/
+test-executor-functions/
+test-manager-functions/
+test-security/
+test-fixtures/
+
+# Temporary files
+*.tsbuildinfo
+.tmp/
+.temp/
+tmp/
+temp/
+
+# Examples (may contain various languages)
+examples/
