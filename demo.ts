@@ -64,7 +64,7 @@ async function demo() {
       name: 'convert_temperature',
       arguments: { value: 100, from_unit: 'C', to_unit: 'F' }
     });
-    console.log('🌡️  100°C = ', JSON.parse(tempResult.content[0].text), '°F\n');
+    console.log('🌡️  100°C = ', JSON.parse((tempResult as any).content[0].text), '°F\n');
 
     // Demo 2: JavaScript Tool - URL Parser
     console.log('📍 Demo 2: Adding a JavaScript URL parser');
@@ -105,7 +105,7 @@ async function demo() {
       name: 'parse_url',
       arguments: { url: 'https://example.com:8080/path?query=test#section' }
     });
-    console.log('🔗 Parsed URL:', JSON.parse(urlResult.content[0].text), '\n');
+    console.log('🔗 Parsed URL:', JSON.parse((urlResult as any).content[0].text), '\n');
 
     // Demo 3: Bash Tool - System Info
     console.log('📍 Demo 3: Adding a Bash system info tool');
@@ -136,7 +136,7 @@ async function demo() {
       name: 'system_info',
       arguments: {}
     });
-    console.log('💻 System Info:', JSON.parse(sysResult.content[0].text), '\n');
+    console.log('💻 System Info:', JSON.parse((sysResult as any).content[0].text), '\n');
 
     // Demo 4: List all custom tools
     console.log('📍 Demo 4: Listing all custom tools');
@@ -144,7 +144,7 @@ async function demo() {
       name: 'list_tools',
       arguments: {}
     });
-    const tools = JSON.parse(toolsList.content[0].text).tools;
+    const tools = JSON.parse((toolsList as any).content[0].text).tools;
     console.log(`Found ${tools.length} custom tools:`);
     tools.forEach((tool: any) => {
       console.log(`  - ${tool.name} (${tool.language}): ${tool.description}`);
