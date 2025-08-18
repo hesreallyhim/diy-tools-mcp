@@ -4,7 +4,9 @@ export interface FunctionSpecification {
   name: string;
   description: string;
   language: SupportedLanguage;
-  code: string;
+  code?: string; // Now optional - for inline code
+  codePath?: string; // New field - path to code file
+  entryPoint?: string; // Optional entry point function name (defaults to 'main')
   parameters: JSONSchema7;
   returns?: string;
   dependencies?: string[];
@@ -12,6 +14,15 @@ export interface FunctionSpecification {
 }
 
 export type SupportedLanguage = 'python' | 'javascript' | 'typescript' | 'bash' | 'ruby' | 'node';
+
+// Type guards for function types
+export function isFileBasedFunction(spec: FunctionSpecification): boolean {
+  return !!spec.codePath && !spec.code;
+}
+
+export function isInlineFunction(spec: FunctionSpecification): boolean {
+  return !!spec.code && !spec.codePath;
+}
 
 export interface StoredFunction extends FunctionSpecification {
   id: string;
@@ -31,14 +42,21 @@ export interface ValidationResult {
   errors?: string[];
 }
 
+// Type for function arguments - can be any JSON-serializable value
+export type FunctionArgs = Record<string, unknown>;
+
 export interface LanguageExecutor {
-  validate(code: string): Promise<ValidationResult>;
-  execute(code: string, args: any): Promise<ExecutionResult>;
+  validate(code: string, entryPoint?: string): Promise<ValidationResult>;
+  execute(code: string, args: FunctionArgs, entryPoint?: string): Promise<ExecutionResult>;
+  executeFile?(filepath: string, args: FunctionArgs, entryPoint?: string): Promise<ExecutionResult>;
   getFileExtension(): string;
 }
 
 export class ToolError extends Error {
-  constructor(message: string, public code: string) {
+  constructor(
+    message: string,
+    public code: string
+  ) {
     super(message);
     this.name = 'ToolError';
   }

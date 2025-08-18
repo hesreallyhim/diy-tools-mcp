@@ -1,16 +1,45 @@
 {
   "name": "diy-tools-mcp",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "MCP server that allows users to dynamically add custom tools/functions at runtime",
   "main": "dist/index.js",
   "type": "module",
+  "bin": {
+    "diy-tools-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
   "scripts": {
     "build": "tsc && chmod +x dist/index.js",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
-    "clean": "rm -rf dist",
-    "test": "jest",
-    "postinstall": "npm run build"
+    "clean": "rm -rf dist coverage *.tsbuildinfo",
+    "clean:all": "npm run clean && rm -rf node_modules functions function-code test-*",
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --runInBand",
+    "test:watch": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --watch",
+    "test:coverage": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --coverage",
+    "test:unit": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --testPathIgnorePatterns=integration",
+    "test:integration": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --testPathPattern=integration",
+    "typecheck": "tsc --noEmit",
+    "demo": "tsx demo.ts",
+    "lint": "eslint 'src/**/*.ts' 'demo.ts' 'INTERNAL/temp-tests/*.ts'",
+    "lint:fix": "eslint 'src/**/*.ts' 'demo.ts' 'INTERNAL/temp-tests/*.ts' --fix",
+    "format": "prettier --write 'src/**/*.ts' 'demo.ts' 'INTERNAL/temp-tests/*.ts'",
+    "format:check": "prettier --check 'src/**/*.ts' 'demo.ts' 'INTERNAL/temp-tests/*.ts'",
+    "prepublishOnly": "npm run clean && npm run build && npm test",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hesrealllyhim/diy-tools-mcp.git"
+  },
+  "homepage": "https://github.com/hesrealllyhim/diy-tools-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/hesrealllyhim/diy-tools-mcp/issues"
   },
   "keywords": [
     "mcp",
@@ -24,17 +53,42 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "ajv": "^8.17.1",
-    "uuid": "^11.0.4"
+    "uuid": "^11.0.4",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/json-schema": "^7.0.15",
     "@types/node": "^22.10.5",
     "@types/uuid": "^10.0.0",
+    "@types/winston": "^2.4.4",
+    "@typescript-eslint/eslint-plugin": "^8.39.1",
+    "@typescript-eslint/parser": "^8.39.1",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
+    "lint-staged": "^16.1.5",
+    "prettier": "^3.6.2",
+    "ts-jest": "^29.4.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "demo.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx,json,md}": [
+      "prettier --write"
+    ]
   }
 }

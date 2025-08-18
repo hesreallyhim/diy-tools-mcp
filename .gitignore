@@ -130,4 +130,19 @@ temp/
 *.bak
 *.orig
 
-INTERNAL/
+# DIY Tools MCP specific
+functions/
+function-code/
+test-*-functions/
+test-*-integration/
+test-executor-functions/
+test-manager-functions/
+test-security/
+test-integration-functions/
+test-security-integration/
+
+# Keep test fixtures but ignore generated test data
+!test-fixtures/
+test-fixtures/**/test-*
+
+INTERNAL/*

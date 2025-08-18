@@ -1,0 +1,95 @@
+# Source files (users only need dist)
+src/
+*.ts
+!*.d.ts
+
+# Development files
+demo.ts
+Makefile
+claude_desktop_config.json
+
+# Config files
+tsconfig.json
+jest.config.js
+.gitignore
+.npmignore
+.eslintrc*
+.prettierrc*
+commitlint.config.js
+.editorconfig
+
+# Development
+node_modules/
+*.log
+.env*
+.nyc_output/
+
+# Testing
+coverage/
+__tests__/
+**/*.test.*
+**/*.spec.*
+test-*/
+test-fixtures/
+
+# Documentation source
+INTERNAL/
+tickets/
+docs/
+*.md
+!README.md
+!LICENSE
+!CHANGELOG.md
+
+# Version control
+.git/
+.github/
+.husky/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.tsbuildinfo
+.cache/
+.parcel-cache/
+
+# Function storage (user-specific)
+functions/
+function-code/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.temp.*
+
+# Examples (include in package)
+!examples/
+!examples/**/*.js
+!examples/**/*.py
+!examples/**/*.sh
+!examples/**/*.rb
+!examples/**/*.ts
+!examples/**/README.md
+
+# CI/CD
+.travis.yml
+.circleci/
+appveyor.yml
+.gitlab-ci.yml
+
+# Logs and databases
+logs/
+*.sqlite
+*.db
+
+# OS files
+Desktop.ini
+$RECYCLE.BIN/

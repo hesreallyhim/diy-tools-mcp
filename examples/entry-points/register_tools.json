@@ -1,0 +1,108 @@
+[
+  {
+    "name": "tax_calculator",
+    "description": "Calculate tax amount and net income",
+    "language": "python",
+    "codePath": "./examples/entry-points/math_utils.py",
+    "entryPoint": "calculate_tax",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "income": {
+          "type": "number",
+          "description": "Annual income"
+        },
+        "tax_rate": {
+          "type": "number",
+          "description": "Tax rate as decimal (e.g., 0.25 for 25%)"
+        }
+      },
+      "required": ["income", "tax_rate"]
+    }
+  },
+  {
+    "name": "interest_calculator",
+    "description": "Calculate compound interest",
+    "language": "python",
+    "codePath": "./examples/entry-points/math_utils.py",
+    "entryPoint": "compound_interest",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "principal": {
+          "type": "number",
+          "description": "Initial investment amount"
+        },
+        "rate": {
+          "type": "number",
+          "description": "Annual interest rate as decimal"
+        },
+        "time": {
+          "type": "number",
+          "description": "Investment period in years"
+        },
+        "n": {
+          "type": "number",
+          "description": "Compounding frequency per year",
+          "default": 12
+        }
+      },
+      "required": ["principal", "rate", "time"]
+    }
+  },
+  {
+    "name": "loan_calculator",
+    "description": "Calculate monthly loan payments",
+    "language": "python",
+    "codePath": "./examples/entry-points/math_utils.py",
+    "entryPoint": "loan_payment",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "principal": {
+          "type": "number",
+          "description": "Loan amount"
+        },
+        "rate": {
+          "type": "number",
+          "description": "Annual interest rate as decimal"
+        },
+        "months": {
+          "type": "number",
+          "description": "Loan term in months"
+        }
+      },
+      "required": ["principal", "rate", "months"]
+    }
+  },
+  {
+    "name": "retirement_planner",
+    "description": "Project retirement savings",
+    "language": "python",
+    "codePath": "./examples/entry-points/math_utils.py",
+    "entryPoint": "retirement_savings",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "current_age": {
+          "type": "number",
+          "description": "Current age"
+        },
+        "retirement_age": {
+          "type": "number",
+          "description": "Target retirement age"
+        },
+        "monthly_contribution": {
+          "type": "number",
+          "description": "Monthly savings contribution"
+        },
+        "annual_return": {
+          "type": "number",
+          "description": "Expected annual return as decimal",
+          "default": 0.07
+        }
+      },
+      "required": ["current_age", "retirement_age", "monthly_contribution"]
+    }
+  }
+]

@@ -2,7 +2,7 @@
 
 /**
  * Demo script for DIY Tools MCP Server
- * 
+ *
  * This script demonstrates how to use the DIY Tools MCP server to:
  * 1. Add custom tools in different languages
  * 2. Execute those tools
@@ -17,15 +17,18 @@ async function demo() {
 
   const transport = new StdioClientTransport({
     command: 'node',
-    args: ['dist/index.js']
+    args: ['dist/index.js'],
   });
 
-  const client = new Client({
-    name: 'demo-client',
-    version: '1.0.0'
-  }, {
-    capabilities: {}
-  });
+  const client = new Client(
+    {
+      name: 'demo-client',
+      version: '1.0.0',
+    },
+    {
+      capabilities: {},
+    }
+  );
 
   try {
     await client.connect(transport);
@@ -51,20 +54,20 @@ async function demo() {
           properties: {
             value: { type: 'number', description: 'Temperature value' },
             from_unit: { type: 'string', enum: ['C', 'F'], description: 'Source unit' },
-            to_unit: { type: 'string', enum: ['C', 'F'], description: 'Target unit' }
+            to_unit: { type: 'string', enum: ['C', 'F'], description: 'Target unit' },
           },
-          required: ['value', 'from_unit', 'to_unit']
-        }
-      }
+          required: ['value', 'from_unit', 'to_unit'],
+        },
+      },
     });
     console.log('✓ Temperature converter added\n');
 
     // Use the temperature converter
     const tempResult = await client.callTool({
       name: 'convert_temperature',
-      arguments: { value: 100, from_unit: 'C', to_unit: 'F' }
+      arguments: { value: 100, from_unit: 'C', to_unit: 'F' },
     });
-    console.log('🌡️  100°C = ', JSON.parse(tempResult.content[0].text), '°F\n');
+    console.log('🌡️  100°C = ', JSON.parse((tempResult as any).content[0].text), '°F\n');
 
     // Demo 2: JavaScript Tool - URL Parser
     console.log('📍 Demo 2: Adding a JavaScript URL parser');
@@ -92,20 +95,20 @@ async function demo() {
         parameters: {
           type: 'object',
           properties: {
-            url: { type: 'string', description: 'URL to parse' }
+            url: { type: 'string', description: 'URL to parse' },
           },
-          required: ['url']
-        }
-      }
+          required: ['url'],
+        },
+      },
     });
     console.log('✓ URL parser added\n');
 
     // Use the URL parser
     const urlResult = await client.callTool({
       name: 'parse_url',
-      arguments: { url: 'https://example.com:8080/path?query=test#section' }
+      arguments: { url: 'https://example.com:8080/path?query=test#section' },
     });
-    console.log('🔗 Parsed URL:', JSON.parse(urlResult.content[0].text), '\n');
+    console.log('🔗 Parsed URL:', JSON.parse((urlResult as any).content[0].text), '\n');
 
     // Demo 3: Bash Tool - System Info
     console.log('📍 Demo 3: Adding a Bash system info tool');
@@ -125,26 +128,26 @@ async function demo() {
 }`,
         parameters: {
           type: 'object',
-          properties: {}
-        }
-      }
+          properties: {},
+        },
+      },
     });
     console.log('✓ System info tool added\n');
 
     // Use the system info tool
     const sysResult = await client.callTool({
       name: 'system_info',
-      arguments: {}
+      arguments: {},
     });
-    console.log('💻 System Info:', JSON.parse(sysResult.content[0].text), '\n');
+    console.log('💻 System Info:', JSON.parse((sysResult as any).content[0].text), '\n');
 
     // Demo 4: List all custom tools
     console.log('📍 Demo 4: Listing all custom tools');
     const toolsList = await client.callTool({
       name: 'list_tools',
-      arguments: {}
+      arguments: {},
     });
-    const tools = JSON.parse(toolsList.content[0].text).tools;
+    const tools = JSON.parse((toolsList as any).content[0].text).tools;
     console.log(`Found ${tools.length} custom tools:`);
     tools.forEach((tool: any) => {
       console.log(`  - ${tool.name} (${tool.language}): ${tool.description}`);
@@ -156,7 +159,7 @@ async function demo() {
     try {
       await client.callTool({
         name: 'convert_temperature',
-        arguments: { value: 'not a number', from_unit: 'C', to_unit: 'F' }
+        arguments: { value: 'not a number', from_unit: 'C', to_unit: 'F' },
       });
     } catch (error: any) {
       console.log('✓ Properly caught type error:', error.message);
@@ -166,7 +169,6 @@ async function demo() {
     console.log('🎉 Demo completed successfully!');
     console.log('\nℹ️  Tools are persisted and will be available on server restart.');
     console.log('ℹ️  Use "remove_tool" to remove any tool you no longer need.');
-
   } catch (error) {
     console.error('Demo error:', error);
   } finally {

@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Test data
+functions/
+function-code/
+test-*-functions/
+test-*-integration/
+test-executor-functions/
+test-manager-functions/
+test-security/
+test-fixtures/
+
+# Package files
+package-lock.json
+*.tsbuildinfo
+
+# Temporary files
+.tmp/
+.temp/
+tmp/
+temp/
+
+# Generated files
+*.min.js
+*.min.css
+
+# Examples (may contain various languages)
+examples/
+
+# Documentation
+*.md
