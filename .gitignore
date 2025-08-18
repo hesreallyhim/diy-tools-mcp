@@ -129,3 +129,5 @@ temp/
 .stylelintcache
 *.bak
 *.orig
+
+INTERNAL/
