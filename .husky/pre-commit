@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+# Run lint-staged for linting and formatting
+npx lint-staged
+
+# Run TypeScript type checking
+npm run typecheck

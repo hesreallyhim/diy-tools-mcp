@@ -30,7 +30,8 @@
     "lint:fix": "eslint 'src/**/*.ts' 'demo.ts' 'INTERNAL/temp-tests/*.ts' --fix",
     "format": "prettier --write 'src/**/*.ts' 'demo.ts' 'INTERNAL/temp-tests/*.ts'",
     "format:check": "prettier --check 'src/**/*.ts' 'demo.ts' 'INTERNAL/temp-tests/*.ts'",
-    "prepublishOnly": "npm run clean && npm run build && npm test"
+    "prepublishOnly": "npm run clean && npm run build && npm test",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -66,7 +67,9 @@
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
+    "lint-staged": "^16.1.5",
     "prettier": "^3.6.2",
     "ts-jest": "^29.4.1",
     "tsx": "^4.19.2",
@@ -74,5 +77,18 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "demo.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx,json,md}": [
+      "prettier --write"
+    ]
   }
 }

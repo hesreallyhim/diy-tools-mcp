@@ -115,11 +115,24 @@ The project uses automated tools to maintain code quality:
 - **Prettier**: Code formatting
 - **TypeScript**: Static type checking
 - **Jest**: Testing framework
+- **Husky & lint-staged**: Pre-commit hooks for automatic code quality checks
+
+#### Pre-commit Hooks
+
+This project uses pre-commit hooks to automatically ensure code quality before each commit. When you commit changes, the following checks will run automatically on staged files:
+
+- **ESLint**: Automatically fixes and checks for linting errors
+- **Prettier**: Formats your code consistently
+- **TypeScript**: Runs type checking to catch type errors
+
+These hooks are managed by Husky and lint-staged, and will be automatically set up when you run `npm install`.
+
+If the pre-commit hooks fail, your commit will be blocked. Fix the reported issues and try committing again.
 
 All code quality checks must pass before merging:
 
 ```bash
-# Run all quality checks
+# Run all quality checks manually
 npm run lint
 npm run format:check
 npm run typecheck
