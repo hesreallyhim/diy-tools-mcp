@@ -436,7 +436,7 @@ if (!entryFunc) {
     const args = JSON.parse(process.argv[2] || '{}');
     const result = await entryFunc(args);
     console.log(JSON.stringify(result));
-  } catch (error: any) {
+  } catch (error) {
     console.error(JSON.stringify({ error: error?.message || 'Unknown error' }));
     process.exit(1);
   }
