@@ -55,7 +55,7 @@ export class SecurityValidator {
     // Check if file exists and is readable
     try {
       await access(resolvedPath, constants.R_OK);
-    } catch (error) {
+    } catch {
       throw new RegistrationError(`Cannot read file: ${SecurityValidator.sanitizePath(filePath)}`);
     }
 
