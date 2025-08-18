@@ -31,7 +31,14 @@
     "format": "prettier --write 'src/**/*.ts' 'demo.ts'",
     "format:check": "prettier --check 'src/**/*.ts' 'demo.ts'",
     "prepublishOnly": "npm run clean && npm run build && npm test",
-    "prepare": "husky"
+    "prepare": "husky",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "version:major": "npm version major --no-git-tag-version",
+    "release:patch": "npm run version:patch && npm run release:do",
+    "release:minor": "npm run version:minor && npm run release:do",
+    "release:major": "npm run version:major && npm run release:do",
+    "release:do": "node scripts/release.js"
   },
   "repository": {
     "type": "git",
