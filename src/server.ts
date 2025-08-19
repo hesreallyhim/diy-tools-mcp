@@ -18,7 +18,7 @@ export class DIYToolsServer {
     this.server = new Server(
       {
         name: 'diy-tools-mcp',
-        version: '1.2.1',
+        version: '1.2.3',
       },
       {
         capabilities: {

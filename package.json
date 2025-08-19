@@ -1,6 +1,6 @@
 {
   "name": "diy-tools-mcp",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "MCP server that allows users to dynamically add custom tools/functions at runtime",
   "main": "dist/index.js",
   "type": "module",
