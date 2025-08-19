@@ -112,7 +112,7 @@ class PythonExecutor extends BaseExecutor {
   async executeFile(
     filepath: string,
     args: FunctionArgs,
-    entryPoint: string = 'main'
+    _entryPoint: string = 'main'
   ): Promise<ExecutionResult> {
     const startTime = Date.now();
 
@@ -146,7 +146,7 @@ class PythonExecutor extends BaseExecutor {
           output: result,
           executionTime: Date.now() - startTime,
         };
-      } catch (_parseError) {
+      } catch {
         return {
           success: false,
           error: `Failed to parse result: ${stdout}`,
@@ -162,7 +162,7 @@ class PythonExecutor extends BaseExecutor {
     }
   }
 
-  async validate(code: string, entryPoint: string = 'main'): Promise<ValidationResult> {
+  async validate(code: string, _entryPoint: string = 'main'): Promise<ValidationResult> {
     const filepath = await this.createTempFile(code, 'py');
 
     try {
@@ -502,7 +502,7 @@ class BashExecutor extends BaseExecutor {
     return 'sh';
   }
 
-  async validate(code: string, entryPoint: string = 'main'): Promise<ValidationResult> {
+  async validate(code: string, _entryPoint: string = 'main'): Promise<ValidationResult> {
     const filepath = await this.createTempFile(code, 'sh');
 
     try {
@@ -593,7 +593,7 @@ class RubyExecutor extends BaseExecutor {
     return 'rb';
   }
 
-  async validate(code: string, entryPoint: string = 'main'): Promise<ValidationResult> {
+  async validate(code: string, _entryPoint: string = 'main'): Promise<ValidationResult> {
     const filepath = await this.createTempFile(code, 'rb');
 
     try {
