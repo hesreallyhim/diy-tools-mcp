@@ -22,7 +22,7 @@ describe('Configurable Entry Points', () => {
     try {
       await rmdir(FUNCTIONS_DIR, { recursive: true });
       await rmdir(FUNCTION_CODE_DIR, { recursive: true });
-    } catch (error) {
+    } catch {
       // Ignore cleanup errors
     }
   });
