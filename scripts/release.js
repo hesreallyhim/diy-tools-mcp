@@ -53,7 +53,11 @@ async function main() {
   const uncommittedFiles = gitStatus
     .split('\n')
     .filter(
-      (line) => line.trim() && !line.includes('package.json') && !line.includes('src/server.ts')
+      (line) =>
+        line.trim() &&
+        !line.includes('package.json') &&
+        !line.includes('package-lock.json') &&
+        !line.includes('src/server.ts')
     );
 
   if (uncommittedFiles.length > 0) {
