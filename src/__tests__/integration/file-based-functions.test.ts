@@ -4,6 +4,7 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { writeFile, mkdir, rm } from 'fs/promises';
 import { join } from 'path';
 import { FunctionSpecification } from '../../types/index.js';
+import { logger } from '../../utils/logger.js';
 
 describe('File-Based Functions Integration', () => {
   let toolManager: ToolManager;
@@ -505,9 +506,9 @@ def helper():
       // Test both work
       const inlineResult = await toolManager.executeTool('inline_add', { a: 3, b: 4 });
       expect(inlineResult.output).toBe(7);
-      console.log('IR:', inlineResult);
+      logger.info('IR:', inlineResult);
       const fileResult = await toolManager.executeTool('file_multiply', { a: 3, b: 4 });
-      console.log('FR:', fileResult);
+      logger.info('FR:', fileResult);
       if (!fileResult.success) {
         console.error('File multiply execution failed:', fileResult.error);
       }
