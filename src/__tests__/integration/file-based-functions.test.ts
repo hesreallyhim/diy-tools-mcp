@@ -298,13 +298,14 @@ module.exports = { main };`;
         },
       });
 
-      const result = await toolManager.handleToolCall({
+      const response = await toolManager.handleToolCall({
         params: {
           name: 'view_source',
           arguments: { name: 'doubler' },
         },
       });
 
+      const result = JSON.parse(response.content[0].text);
       expect(result.success).toBe(true);
       expect(result.sourceCode).toBe(sourceCode);
       expect(result.language).toBe('javascript');
@@ -336,13 +337,14 @@ module.exports = { main };`;
         timeout: 5000,
       });
 
-      const result = await toolManager.handleToolCall({
+      const response = await toolManager.handleToolCall({
         params: {
           name: 'view_source',
           arguments: { name: 'factorial', verbose: true },
         },
       });
 
+      const result = JSON.parse(response.content[0].text);
       expect(result.success).toBe(true);
       expect(result.tool).toBeDefined();
       expect(result.tool.name).toBe('factorial');
@@ -356,13 +358,14 @@ module.exports = { main };`;
     });
 
     it('should return error for non-existent tool', async () => {
-      const result = await toolManager.handleToolCall({
+      const response = await toolManager.handleToolCall({
         params: {
           name: 'view_source',
           arguments: { name: 'non_existent' },
         },
       });
 
+      const result = JSON.parse(response.content[0].text);
       expect(result.success).toBe(false);
       expect(result.error).toContain('Tool "non_existent" not found');
     });

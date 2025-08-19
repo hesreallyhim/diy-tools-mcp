@@ -345,13 +345,14 @@ def main(x):
       };
 
       await manager.addTool(spec);
-      const result = await manager.handleToolCall({
+      const response = await manager.handleToolCall({
         params: {
           name: 'view_source',
           arguments: { name: 'inline_view_test' },
         },
       });
 
+      const result = JSON.parse(response.content[0].text);
       expect(result.success).toBe(true);
       expect(result.name).toBe('inline_view_test');
       expect(result.language).toBe('python');
@@ -378,13 +379,14 @@ def main(x):
       };
 
       await manager.addTool(spec);
-      const result = await manager.handleToolCall({
+      const response = await manager.handleToolCall({
         params: {
           name: 'view_source',
           arguments: { name: 'inline_verbose_test', verbose: true },
         },
       });
 
+      const result = JSON.parse(response.content[0].text);
       expect(result.success).toBe(true);
       expect(result.tool).toBeDefined();
       expect(result.tool.name).toBe('inline_verbose_test');
@@ -410,13 +412,14 @@ def main(x):
       };
 
       await manager.addTool(spec);
-      const result = await manager.handleToolCall({
+      const response = await manager.handleToolCall({
         params: {
           name: 'view_source',
           arguments: { name: 'file_view_test' },
         },
       });
 
+      const result = JSON.parse(response.content[0].text);
       expect(result.success).toBe(true);
       expect(result.name).toBe('file_view_test');
       expect(result.language).toBe('python');
@@ -434,13 +437,14 @@ def main(x):
       };
 
       await manager.addTool(spec);
-      const result = await manager.handleToolCall({
+      const response = await manager.handleToolCall({
         params: {
           name: 'view_source',
           arguments: { name: 'file_verbose_test', verbose: true },
         },
       });
 
+      const result = JSON.parse(response.content[0].text);
       expect(result.success).toBe(true);
       expect(result.tool).toBeDefined();
       expect(result.tool.isFileBased).toBe(true);
@@ -449,13 +453,14 @@ def main(x):
     });
 
     it('should return error for non-existent tool', async () => {
-      const result = await manager.handleToolCall({
+      const response = await manager.handleToolCall({
         params: {
           name: 'view_source',
           arguments: { name: 'does_not_exist' },
         },
       });
 
+      const result = JSON.parse(response.content[0].text);
       expect(result.success).toBe(false);
       expect(result.error).toContain('Tool "does_not_exist" not found');
     });
