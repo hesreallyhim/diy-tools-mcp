@@ -110,7 +110,7 @@ def main():
     await writeFile(join(testDir, 'target.py'), 'def main(): pass');
     try {
       await symlink(join(testDir, 'target.py'), symlinkFile);
-    } catch (error) {
+    } catch {
       // Symlink creation might fail on some systems, that's ok
     }
   });
