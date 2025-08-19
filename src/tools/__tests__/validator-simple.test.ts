@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { FunctionSpecification } from '../../types/index.js';
+import { FunctionSpecification, SupportedLanguage } from '../../types/index.js';
 import { JSONSchema7 } from 'json-schema';
 
 // Simple tests for the validator logic without running the actual validator
@@ -45,7 +45,7 @@ describe('FunctionValidator Logic Tests', () => {
         const spec: FunctionSpecification = {
           name: 'test',
           description: 'test',
-          language: language as any,
+          language: language as SupportedLanguage,
           codePath: `./test${extension}`,
           parameters: { type: 'object' } as JSONSchema7,
         };
