@@ -1,4 +1,4 @@
-import { default as Ajv } from 'ajv';
+import { default as Ajv, ErrorObject } from 'ajv';
 import { JSONSchema7 } from 'json-schema';
 import {
   FunctionSpecification,
@@ -66,7 +66,7 @@ export class FunctionValidator {
 
       // Validate file extension matches language
       const validExtensions = this.getValidExtensions(spec.language);
-      const hasValidExt = validExtensions.some((ext) => spec.codePath!.endsWith(ext));
+      const hasValidExt = validExtensions.some((ext) => spec.codePath?.endsWith(ext));
       if (!hasValidExt) {
         throw new ValidationError(
           `File path must have one of ${validExtensions.join(', ')} extensions for ${spec.language} language`
@@ -88,7 +88,7 @@ export class FunctionValidator {
         throw new ValidationError(`No executor available for language: ${spec.language}`);
       }
 
-      const validationResult = await executor.validate(spec.code!, spec.entryPoint);
+      const validationResult = await executor.validate(spec.code || '', spec.entryPoint);
       if (!validationResult.valid) {
         throw new ValidationError(
           `Code validation failed: ${validationResult.errors?.join(', ') || 'Unknown error'}`
@@ -167,7 +167,7 @@ export class FunctionValidator {
 
     if (!validate(args)) {
       const errors = validate.errors
-        ?.map((err: any) => {
+        ?.map((err: ErrorObject) => {
           const path = err.instancePath || 'root';
           return `${path}: ${err.message}`;
         })
