@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/hesreallyhim-diy-tools-mcp-badge.png)](https://mseep.ai/app/hesreallyhim-diy-tools-mcp)
+
 # DIY Tools MCP Server
 
 [![npm version](https://img.shields.io/npm/v/diy-tools-mcp.svg)](https://www.npmjs.com/package/diy-tools-mcp)
