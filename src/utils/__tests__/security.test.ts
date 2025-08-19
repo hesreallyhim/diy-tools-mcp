@@ -212,11 +212,12 @@ def main():
         await SecurityValidator.validateFilePath(symlinkFile, 'python');
         // If we reach here and symlink exists, it should have thrown
         throw new Error('Should have rejected symlink');
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Either symlink doesn't exist (ok) or it was properly rejected
-        if (error.message.includes('Symbolic links are not allowed')) {
-          expect(error.message).toContain('Symbolic links are not allowed');
-        } else if (!error.message.includes('Cannot read file')) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        if (errorMessage.includes('Symbolic links are not allowed')) {
+          expect(errorMessage).toContain('Symbolic links are not allowed');
+        } else if (!errorMessage.includes('Cannot read file')) {
           // If it's not a "cannot read" error, re-throw
           throw error;
         }
