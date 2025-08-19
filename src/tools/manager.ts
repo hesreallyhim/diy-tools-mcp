@@ -11,8 +11,13 @@ import { FunctionValidator } from './validator.js';
 import { FunctionExecutor } from './executor.js';
 import { SecurityValidator } from '../utils/security.js';
 import { TIMEOUTS } from '../constants.js';
-import { logger, logToolRegistration, logFunctionExecution, createCorrelationId } from '../utils/logger.js';
-import { NotFoundError, ValidationError, ExecutionError } from '../utils/errors.js';
+import {
+  logger,
+  logToolRegistration,
+  logFunctionExecution,
+  createCorrelationId,
+} from '../utils/logger.js';
+import { ExecutionError } from '../utils/errors.js';
 
 export class ToolManager {
   private storage: FunctionStorage;
@@ -104,7 +109,11 @@ export class ToolManager {
     return true;
   }
 
-  async executeTool(name: string, args: FunctionArgs, correlationId?: string): Promise<ExecutionResult> {
+  async executeTool(
+    name: string,
+    args: FunctionArgs,
+    correlationId?: string
+  ): Promise<ExecutionResult> {
     const tool = this.registeredTools.get(name);
     if (!tool) {
       const error = `Tool "${name}" not found`;
@@ -115,16 +124,16 @@ export class ToolManager {
         executionTime: 0,
       };
     }
-    
+
     const startTime = Date.now();
     logger.debug(`Executing tool: ${name}`, { tool: name, correlationId });
-    
+
     try {
       const result = await this.executor.execute(tool, args);
       const duration = Date.now() - startTime;
-      
+
       logFunctionExecution(name, duration, result.success, undefined, correlationId);
-      
+
       return result;
     } catch (error) {
       const duration = Date.now() - startTime;
@@ -258,17 +267,15 @@ export class ToolManager {
     switch (name) {
       case 'add_tool': {
         const spec = args as unknown as FunctionSpecification;
-        logger.debug(`Adding tool: ${spec.name}`, { correlationId: correlationId, language: spec.language });
-        
+        logger.debug(`Adding tool: ${spec.name}`, {
+          correlationId: correlationId,
+          language: spec.language,
+        });
+
         try {
           const result = await this.addTool(spec);
-          logToolRegistration(
-            result.name,
-            result.language,
-            !!result.codePath,
-            correlationId
-          );
-          
+          logToolRegistration(result.name, result.language, !!result.codePath, correlationId);
+
           return {
             success: true,
             tool: {
