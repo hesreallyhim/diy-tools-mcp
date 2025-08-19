@@ -26,17 +26,17 @@ def main(x, y):
     // Clean up test files - use try-catch to avoid failures if already deleted
     try {
       await rm(testDir, { recursive: true, force: true });
-    } catch (error) {
+    } catch {
       // Ignore if already deleted
     }
     try {
       await rm(join(process.cwd(), 'functions'), { recursive: true, force: true });
-    } catch (error) {
+    } catch {
       // Ignore if already deleted
     }
     try {
       await rm(join(process.cwd(), 'function-code'), { recursive: true, force: true });
-    } catch (error) {
+    } catch {
       // Ignore if already deleted
     }
   });
@@ -182,7 +182,8 @@ def main(x, y):
       };
 
       const stored = await storage.save(spec);
-      const codeFile = join(process.cwd(), stored.codePath!);
+      expect(stored.codePath).toBeDefined();
+      const codeFile = join(process.cwd(), stored.codePath as string);
 
       expect(existsSync(codeFile)).toBe(true);
 
