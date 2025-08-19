@@ -20,14 +20,14 @@ export class FunctionStorage {
     // Check and create FUNCTIONS_DIR if needed
     try {
       await access(FUNCTIONS_DIR);
-    } catch (error) {
+    } catch {
       await mkdir(FUNCTIONS_DIR, { recursive: true });
     }
 
     // Check and create FUNCTION_CODE_DIR if needed
     try {
       await access(FUNCTION_CODE_DIR);
-    } catch (error) {
+    } catch {
       await mkdir(FUNCTION_CODE_DIR, { recursive: true });
     }
   }
@@ -112,7 +112,7 @@ export class FunctionStorage {
       const codeFile = join(FUNCTION_CODE_DIR, `${name}.${ext}`);
       try {
         await unlink(codeFile);
-      } catch (error) {
+      } catch {
         // File might not exist, that's okay
       }
     }
@@ -140,7 +140,7 @@ export class FunctionStorage {
 
       const content = await readFile(filepath, 'utf-8');
       return JSON.parse(content) as StoredFunction;
-    } catch (error) {
+    } catch {
       return null;
     }
   }
@@ -157,7 +157,7 @@ export class FunctionStorage {
           try {
             const content = await readFile(join(FUNCTIONS_DIR, file), 'utf-8');
             return JSON.parse(content) as StoredFunction;
-          } catch (error) {
+          } catch {
             console.error(`Failed to load function from ${file}`);
             return null;
           }
@@ -165,7 +165,7 @@ export class FunctionStorage {
       );
 
       return functions.filter((f): f is StoredFunction => f !== null);
-    } catch (error) {
+    } catch {
       console.error('Failed to load functions');
       return [];
     }
@@ -188,13 +188,13 @@ export class FunctionStorage {
         const codeFile = join(FUNCTION_CODE_DIR, `${name}.${ext}`);
         try {
           await unlink(codeFile);
-        } catch (error) {
+        } catch {
           // Code file might not exist, that's okay
         }
       }
 
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -218,7 +218,7 @@ export class FunctionStorage {
     try {
       await access(filepath);
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
