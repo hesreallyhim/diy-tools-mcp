@@ -32,7 +32,7 @@ export interface StoredFunction extends FunctionSpecification {
 
 export interface ExecutionResult {
   success: boolean;
-  output?: any;
+  output?: unknown;
   error?: string;
   executionTime?: number;
 }
