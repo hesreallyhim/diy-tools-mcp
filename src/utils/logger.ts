@@ -112,7 +112,7 @@ export function logToolRegistration(
  */
 export function logSecurityViolation(
   violation: string,
-  details: any,
+  details: unknown,
   correlationId?: string
 ): void {
   logger.warn(`Security violation: ${violation}`, {
@@ -125,7 +125,7 @@ export function logSecurityViolation(
 /**
  * Sanitize sensitive data from logs
  */
-export function sanitizeLogData(data: any): any {
+export function sanitizeLogData(data: unknown): unknown {
   if (!data) return data;
 
   const sensitiveKeys = [
@@ -138,8 +138,8 @@ export function sanitizeLogData(data: any): any {
     'credential',
   ];
 
-  if (typeof data === 'object') {
-    const sanitized = { ...data };
+  if (typeof data === 'object' && data !== null) {
+    const sanitized = { ...data } as Record<string, unknown>;
     for (const key of Object.keys(sanitized)) {
       const lowerKey = key.toLowerCase();
       if (sensitiveKeys.some((sensitive) => lowerKey.includes(sensitive))) {
