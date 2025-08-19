@@ -74,7 +74,7 @@ export class FunctionExecutor {
     timeout: number,
     entryPoint?: string
   ): Promise<ExecutionResult> {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: NodeJS.Timeout | undefined;
     const timeoutPromise = new Promise<ExecutionResult>((_, reject) => {
       timeoutId = setTimeout(() => reject(new Error('Function execution timed out')), timeout);
       // Unref the timer so it doesn't keep the process alive
@@ -86,10 +86,10 @@ export class FunctionExecutor {
       // The optimized file execution path needs the files to be properly wrapped
       // which they are not when copied from user's source files
       const result = await Promise.race([executor.execute(code, args, entryPoint), timeoutPromise]);
-      clearTimeout(timeoutId!);
+      if (timeoutId) clearTimeout(timeoutId);
       return result;
     } catch (error) {
-      clearTimeout(timeoutId!);
+      if (timeoutId) clearTimeout(timeoutId);
       if (error instanceof Error && error.message === 'Function execution timed out') {
         return {
           success: false,
