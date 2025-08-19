@@ -27,7 +27,7 @@ export async function cleanupTempFiles(): Promise<void> {
       );
 
     await Promise.all(cleanupPromises);
-  } catch (error) {
+  } catch {
     // If we can't read the temp directory, that's okay
     // This is best-effort cleanup
   }
