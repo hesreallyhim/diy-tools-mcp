@@ -3,6 +3,7 @@ import { ToolManager } from '../../tools/manager.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { writeFile, mkdir, rm, symlink } from 'fs/promises';
 import { join } from 'path';
+import { logger } from '../../utils/logger.js';
 // import { FunctionSpecification } from '../../types/index.js';
 
 describe('Security Integration Tests', () => {
@@ -113,7 +114,7 @@ describe('Security Integration Tests', () => {
       } catch (error: any) {
         // Symlink creation might fail on some systems, skip test
         if (!error.message.includes('Symbolic links are not allowed')) {
-          console.log('Skipping symlink test - symlink creation not supported');
+          logger.info('Skipping symlink test - symlink creation not supported');
         }
       }
     });
