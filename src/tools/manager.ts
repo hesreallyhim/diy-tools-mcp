@@ -1,4 +1,5 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { CallToolRequest, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import {
   FunctionSpecification,
   StoredFunction,
@@ -6,6 +7,7 @@ import {
   ExecutionResult,
   FunctionArgs,
 } from '../types/index.js';
+import { JSONSchema7 } from 'json-schema';
 import { FunctionStorage } from '../storage/functions.js';
 import { FunctionValidator } from './validator.js';
 import { FunctionExecutor } from './executor.js';
@@ -142,7 +144,7 @@ export class ToolManager {
     }
   }
 
-  getTools(): Array<{ name: string; description: string; inputSchema: any }> {
+  getTools(): Array<{ name: string; description: string; inputSchema: JSONSchema7 }> {
     const tools = Array.from(this.registeredTools.values()).map((func) => ({
       name: func.name,
       description: func.description,
@@ -260,8 +262,8 @@ export class ToolManager {
     return tools;
   }
 
-  async handleToolCall(request: any): Promise<any> {
-    const { name, arguments: args } = request.params;
+  async handleToolCall(request: CallToolRequest): Promise<CallToolResult> {
+    const { name, arguments: args = {} } = request.params;
     const correlationId = createCorrelationId();
 
     switch (name) {
@@ -277,13 +279,20 @@ export class ToolManager {
           logToolRegistration(result.name, result.language, !!result.codePath, correlationId);
 
           return {
-            success: true,
-            tool: {
-              name: result.name,
-              description: result.description,
-              language: result.language,
-              id: result.id,
-            },
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: true,
+                  tool: {
+                    name: result.name,
+                    description: result.description,
+                    language: result.language,
+                    id: result.id,
+                  },
+                }),
+              },
+            ],
           };
         } catch (error) {
           logger.error(`Failed to add tool: ${spec.name}`, {
@@ -298,10 +307,17 @@ export class ToolManager {
         const { name: toolName } = args as { name: string };
         const success = await this.removeTool(toolName);
         return {
-          success,
-          message: success
-            ? `Tool "${toolName}" removed successfully`
-            : `Tool "${toolName}" not found`,
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({
+                success,
+                message: success
+                  ? `Tool "${toolName}" removed successfully`
+                  : `Tool "${toolName}" not found`,
+              }),
+            },
+          ],
         };
       }
 
@@ -313,7 +329,14 @@ export class ToolManager {
           id: func.id,
           createdAt: func.createdAt,
         }));
-        return { tools };
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify({ tools }),
+            },
+          ],
+        };
       }
 
       case 'view_source': {
@@ -322,8 +345,15 @@ export class ToolManager {
 
         if (!tool) {
           return {
-            success: false,
-            error: `Tool "${toolName}" not found`,
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: false,
+                  error: `Tool "${toolName}" not found`,
+                }),
+              },
+            ],
           };
         }
 
@@ -332,28 +362,42 @@ export class ToolManager {
 
         if (verbose) {
           return {
-            success: true,
-            tool: {
-              name: tool.name,
-              description: tool.description,
-              language: tool.language,
-              parameters: tool.parameters,
-              returns: tool.returns,
-              dependencies: tool.dependencies,
-              timeout: tool.timeout,
-              isFileBased: !!tool.codePath,
-              codePath: tool.codePath,
-              createdAt: tool.createdAt,
-              updatedAt: tool.updatedAt,
-              sourceCode,
-            },
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: true,
+                  tool: {
+                    name: tool.name,
+                    description: tool.description,
+                    language: tool.language,
+                    parameters: tool.parameters,
+                    returns: tool.returns,
+                    dependencies: tool.dependencies,
+                    timeout: tool.timeout,
+                    isFileBased: !!tool.codePath,
+                    codePath: tool.codePath,
+                    createdAt: tool.createdAt,
+                    updatedAt: tool.updatedAt,
+                    sourceCode,
+                  },
+                }),
+              },
+            ],
           };
         } else {
           return {
-            success: true,
-            name: tool.name,
-            language: tool.language,
-            sourceCode,
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  success: true,
+                  name: tool.name,
+                  language: tool.language,
+                  sourceCode,
+                }),
+              },
+            ],
           };
         }
       }
@@ -364,7 +408,14 @@ export class ToolManager {
         if (!result.success) {
           throw new ExecutionError(result.error || 'Execution failed');
         }
-        return result.output;
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: JSON.stringify(result.output),
+            },
+          ],
+        };
       }
     }
   }
