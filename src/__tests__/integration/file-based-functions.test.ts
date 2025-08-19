@@ -19,17 +19,17 @@ describe('File-Based Functions Integration', () => {
     // Clean up test directories - use try-catch to avoid failures if already deleted
     try {
       await rm(testDir, { recursive: true, force: true });
-    } catch (error) {
+    } catch {
       // Ignore if already deleted
     }
     try {
       await rm(join(process.cwd(), 'functions'), { recursive: true, force: true });
-    } catch (error) {
+    } catch {
       // Ignore if already deleted
     }
     try {
       await rm(join(process.cwd(), 'function-code'), { recursive: true, force: true });
-    } catch (error) {
+    } catch {
       // Ignore if already deleted
     }
   });
