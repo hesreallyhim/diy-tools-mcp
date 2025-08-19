@@ -8,10 +8,10 @@
 export class DIYToolsError extends Error {
   public readonly code: string;
   public readonly statusCode: number;
-  public readonly details?: any;
+  public readonly details?: unknown;
   public readonly timestamp: string;
 
-  constructor(message: string, code: string, statusCode: number = 500, details?: any) {
+  constructor(message: string, code: string, statusCode: number = 500, details?: unknown) {
     super(message);
     this.name = 'DIYToolsError';
     this.code = code;
@@ -42,7 +42,7 @@ export class DIYToolsError extends Error {
  * Error thrown when validation fails
  */
 export class ValidationError extends DIYToolsError {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: unknown) {
     super(message, 'VALIDATION_ERROR', 400, details);
     this.name = 'ValidationError';
   }
@@ -52,7 +52,7 @@ export class ValidationError extends DIYToolsError {
  * Error thrown when function execution fails
  */
 export class ExecutionError extends DIYToolsError {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: unknown) {
     super(message, 'EXECUTION_ERROR', 500, details);
     this.name = 'ExecutionError';
   }
@@ -114,7 +114,7 @@ export class StorageError extends DIYToolsError {
 export function formatErrorMessage(
   operation: string,
   error: Error | unknown,
-  context?: any
+  context?: unknown
 ): string {
   if (error instanceof Error) {
     return `${operation} failed: ${error.message}${
@@ -141,10 +141,18 @@ export function getUserFriendlyMessage(error: Error | DIYToolsError): string {
     return `Validation failed: ${error.message}. Please check your input and try again.`;
   }
   if (error instanceof TimeoutError) {
-    return `Operation timed out after ${error.details?.timeout}ms. Try reducing the complexity or increasing the timeout.`;
+    const timeout =
+      error.details && typeof error.details === 'object' && 'timeout' in error.details
+        ? (error.details as { timeout: number }).timeout
+        : 'unknown';
+    return `Operation timed out after ${timeout}ms. Try reducing the complexity or increasing the timeout.`;
   }
   if (error instanceof NotFoundError) {
-    return `${error.details?.resource || 'Resource'} not found: ${error.message}`;
+    const resource =
+      error.details && typeof error.details === 'object' && 'resource' in error.details
+        ? (error.details as { resource: string }).resource
+        : 'Resource';
+    return `${resource} not found: ${error.message}`;
   }
   if (error instanceof SecurityError) {
     return `Security violation: ${error.message}. This operation is not allowed.`;
