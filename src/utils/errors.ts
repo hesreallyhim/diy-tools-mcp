@@ -11,12 +11,7 @@ export class DIYToolsError extends Error {
   public readonly details?: any;
   public readonly timestamp: string;
 
-  constructor(
-    message: string,
-    code: string,
-    statusCode: number = 500,
-    details?: any
-  ) {
+  constructor(message: string, code: string, statusCode: number = 500, details?: any) {
     super(message);
     this.name = 'DIYToolsError';
     this.code = code;
