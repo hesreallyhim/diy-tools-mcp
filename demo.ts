@@ -11,7 +11,14 @@
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { logger } from './src/utils/logger.js';
+
+interface ToolInfo {
+  name: string;
+  language: string;
+  description: string;
+}
 
 async function demo() {
   logger.info('=== DIY Tools MCP Server Demo ===\n');
@@ -68,7 +75,7 @@ async function demo() {
       name: 'convert_temperature',
       arguments: { value: 100, from_unit: 'C', to_unit: 'F' },
     });
-    logger.info('🌡️  100°C = ', JSON.parse((tempResult as any).content[0].text), '°F\n');
+    logger.info('🌡️  100°C = ', JSON.parse((tempResult as CallToolResult).content[0].text), '°F\n');
 
     // Demo 2: JavaScript Tool - URL Parser
     logger.info('📍 Demo 2: Adding a JavaScript URL parser');
@@ -109,7 +116,7 @@ async function demo() {
       name: 'parse_url',
       arguments: { url: 'https://example.com:8080/path?query=test#section' },
     });
-    logger.info('🔗 Parsed URL:', JSON.parse((urlResult as any).content[0].text), '\n');
+    logger.info('🔗 Parsed URL:', JSON.parse((urlResult as CallToolResult).content[0].text), '\n');
 
     // Demo 3: Bash Tool - System Info
     logger.info('📍 Demo 3: Adding a Bash system info tool');
@@ -140,7 +147,7 @@ async function demo() {
       name: 'system_info',
       arguments: {},
     });
-    logger.info('💻 System Info:', JSON.parse((sysResult as any).content[0].text), '\n');
+    logger.info('💻 System Info:', JSON.parse((sysResult as CallToolResult).content[0].text), '\n');
 
     // Demo 4: List all custom tools
     logger.info('📍 Demo 4: Listing all custom tools');
@@ -148,9 +155,9 @@ async function demo() {
       name: 'list_tools',
       arguments: {},
     });
-    const tools = JSON.parse((toolsList as any).content[0].text).tools;
+    const tools = JSON.parse((toolsList as CallToolResult).content[0].text).tools as ToolInfo[];
     logger.info(`Found ${tools.length} custom tools:`);
-    tools.forEach((tool: any) => {
+    tools.forEach((tool: ToolInfo) => {
       logger.info(`  - ${tool.name} (${tool.language}): ${tool.description}`);
     });
     logger.info('');
@@ -162,8 +169,11 @@ async function demo() {
         name: 'convert_temperature',
         arguments: { value: 'not a number', from_unit: 'C', to_unit: 'F' },
       });
-    } catch (error: any) {
-      logger.info('✓ Properly caught type error:', error.message);
+    } catch (error: unknown) {
+      logger.info(
+        '✓ Properly caught type error:',
+        error instanceof Error ? error.message : String(error)
+      );
     }
     logger.info('');
 
