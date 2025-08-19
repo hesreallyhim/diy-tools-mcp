@@ -111,9 +111,10 @@ describe('Security Integration Tests', () => {
             parameters: { type: 'object', properties: {} },
           })
         ).rejects.toThrow('Symbolic links are not allowed');
-      } catch (error: any) {
+      } catch (error: unknown) {
         // Symlink creation might fail on some systems, skip test
-        if (!error.message.includes('Symbolic links are not allowed')) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        if (!errorMessage.includes('Symbolic links are not allowed')) {
           logger.info('Skipping symlink test - symlink creation not supported');
         }
       }
