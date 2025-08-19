@@ -213,8 +213,10 @@ module.exports = { main };
       expect(addTool?.inputSchema).toHaveProperty('properties.codePath');
       expect(addTool?.inputSchema).toHaveProperty('oneOf');
 
-      const schema = addTool!.inputSchema;
-      expect(schema.oneOf).toEqual([{ required: ['code'] }, { required: ['codePath'] }]);
+      if (addTool?.inputSchema) {
+        const schema = addTool.inputSchema;
+        expect(schema.oneOf).toEqual([{ required: ['code'] }, { required: ['codePath'] }]);
+      }
     });
 
     it('should include registered custom tools', async () => {
