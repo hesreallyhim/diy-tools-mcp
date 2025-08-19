@@ -11,9 +11,10 @@
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { logger } from './src/utils/logger.js';
 
 async function demo() {
-  console.log('=== DIY Tools MCP Server Demo ===\n');
+  logger.info('=== DIY Tools MCP Server Demo ===\n');
 
   const transport = new StdioClientTransport({
     command: 'node',
@@ -32,10 +33,10 @@ async function demo() {
 
   try {
     await client.connect(transport);
-    console.log('✓ Connected to DIY Tools MCP server\n');
+    logger.info('✓ Connected to DIY Tools MCP server\n');
 
     // Demo 1: Python Tool - Temperature Converter
-    console.log('📍 Demo 1: Adding a Python temperature converter');
+    logger.info('📍 Demo 1: Adding a Python temperature converter');
     await client.callTool({
       name: 'add_tool',
       arguments: {
@@ -60,17 +61,17 @@ async function demo() {
         },
       },
     });
-    console.log('✓ Temperature converter added\n');
+    logger.info('✓ Temperature converter added\n');
 
     // Use the temperature converter
     const tempResult = await client.callTool({
       name: 'convert_temperature',
       arguments: { value: 100, from_unit: 'C', to_unit: 'F' },
     });
-    console.log('🌡️  100°C = ', JSON.parse((tempResult as any).content[0].text), '°F\n');
+    logger.info('🌡️  100°C = ', JSON.parse((tempResult as any).content[0].text), '°F\n');
 
     // Demo 2: JavaScript Tool - URL Parser
-    console.log('📍 Demo 2: Adding a JavaScript URL parser');
+    logger.info('📍 Demo 2: Adding a JavaScript URL parser');
     await client.callTool({
       name: 'add_tool',
       arguments: {
@@ -101,17 +102,17 @@ async function demo() {
         },
       },
     });
-    console.log('✓ URL parser added\n');
+    logger.info('✓ URL parser added\n');
 
     // Use the URL parser
     const urlResult = await client.callTool({
       name: 'parse_url',
       arguments: { url: 'https://example.com:8080/path?query=test#section' },
     });
-    console.log('🔗 Parsed URL:', JSON.parse((urlResult as any).content[0].text), '\n');
+    logger.info('🔗 Parsed URL:', JSON.parse((urlResult as any).content[0].text), '\n');
 
     // Demo 3: Bash Tool - System Info
-    console.log('📍 Demo 3: Adding a Bash system info tool');
+    logger.info('📍 Demo 3: Adding a Bash system info tool');
     await client.callTool({
       name: 'add_tool',
       arguments: {
@@ -132,48 +133,48 @@ async function demo() {
         },
       },
     });
-    console.log('✓ System info tool added\n');
+    logger.info('✓ System info tool added\n');
 
     // Use the system info tool
     const sysResult = await client.callTool({
       name: 'system_info',
       arguments: {},
     });
-    console.log('💻 System Info:', JSON.parse((sysResult as any).content[0].text), '\n');
+    logger.info('💻 System Info:', JSON.parse((sysResult as any).content[0].text), '\n');
 
     // Demo 4: List all custom tools
-    console.log('📍 Demo 4: Listing all custom tools');
+    logger.info('📍 Demo 4: Listing all custom tools');
     const toolsList = await client.callTool({
       name: 'list_tools',
       arguments: {},
     });
     const tools = JSON.parse((toolsList as any).content[0].text).tools;
-    console.log(`Found ${tools.length} custom tools:`);
+    logger.info(`Found ${tools.length} custom tools:`);
     tools.forEach((tool: any) => {
-      console.log(`  - ${tool.name} (${tool.language}): ${tool.description}`);
+      logger.info(`  - ${tool.name} (${tool.language}): ${tool.description}`);
     });
-    console.log();
+    logger.info('');
 
     // Demo 5: Error handling
-    console.log('📍 Demo 5: Demonstrating error handling');
+    logger.info('📍 Demo 5: Demonstrating error handling');
     try {
       await client.callTool({
         name: 'convert_temperature',
         arguments: { value: 'not a number', from_unit: 'C', to_unit: 'F' },
       });
     } catch (error: any) {
-      console.log('✓ Properly caught type error:', error.message);
+      logger.info('✓ Properly caught type error:', error.message);
     }
-    console.log();
+    logger.info('');
 
-    console.log('🎉 Demo completed successfully!');
-    console.log('\nℹ️  Tools are persisted and will be available on server restart.');
-    console.log('ℹ️  Use "remove_tool" to remove any tool you no longer need.');
+    logger.info('🎉 Demo completed successfully!');
+    logger.info('\nℹ️  Tools are persisted and will be available on server restart.');
+    logger.info('ℹ️  Use "remove_tool" to remove any tool you no longer need.');
   } catch (error) {
-    console.error('Demo error:', error);
+    logger.error('Demo error:', error);
   } finally {
     await client.close();
   }
 }
 
-demo().catch(console.error);
+demo().catch(logger.error);
