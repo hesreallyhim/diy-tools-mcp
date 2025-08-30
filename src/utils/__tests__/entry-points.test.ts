@@ -53,7 +53,7 @@ def calculate_product(a, b):
       const func = await storage.save(spec);
       const result = await executor.execute(func, { a: 5, b: 3 });
 
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.output).toBe(8);
     });
 
@@ -89,7 +89,7 @@ def divide(a, b):
 
       const addFunc = await storage.save(addSpec);
       const addResult = await executor.execute(addFunc, { a: 10, b: 5 });
-      expect(addResult.success).toBe(true);
+      expect(addResult.isError).toBeUndefined();
       expect(addResult.output).toBe(15);
 
       // Test multiply function
@@ -110,7 +110,7 @@ def divide(a, b):
 
       const multiplyFunc = await storage.save(multiplySpec);
       const multiplyResult = await executor.execute(multiplyFunc, { a: 10, b: 5 });
-      expect(multiplyResult.success).toBe(true);
+      expect(multiplyResult.isError).toBeUndefined();
       expect(multiplyResult.output).toBe(50);
     });
 
@@ -138,7 +138,7 @@ def other_function(value):
       const func = await storage.save(spec);
       const result = await executor.execute(func, { value: 21 });
 
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.output).toBe(42);
     });
 
@@ -163,7 +163,7 @@ def calculate(value):
       const func = await storage.save(spec);
       const result = await executor.execute(func, { value: 10 });
 
-      expect(result.success).toBe(false);
+      expect(result.isError).toBe(true);
       expect(result.error).toContain("Function 'nonexistent' not found");
     });
   });
@@ -195,7 +195,7 @@ function validateData(args) {
       const func = await storage.save(spec);
       const result = await executor.execute(func, { input: 'hello' });
 
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.output).toEqual({ processed: 'HELLO' });
     });
 
@@ -226,7 +226,7 @@ module.exports.validate = function(args) {
       const func = await storage.save(spec);
       const result = await executor.execute(func, { a: 7, b: 3 });
 
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.output).toBe(10);
     });
   });
@@ -258,7 +258,7 @@ validate_file() {
       const func = await storage.save(spec);
       const result = await executor.execute(func, {});
 
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.output).toEqual({ status: 'processed' });
     });
   });
@@ -291,7 +291,7 @@ end
       const func = await storage.save(spec);
       const result = await executor.execute(func, { income: 1000, rate: 0.2 });
 
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.output).toBe(200);
     });
   });

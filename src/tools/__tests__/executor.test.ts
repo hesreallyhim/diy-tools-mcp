@@ -89,7 +89,7 @@ def main(name, greeting="Hello"):
       const stored = await storage.save(spec);
       const result = await executor.execute(stored, { name: 'World' });
 
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.output).toEqual({ message: 'Hello, World!' });
       expect(result.executionTime).toBeGreaterThan(0);
     });
@@ -113,7 +113,7 @@ def main(name, greeting="Hello"):
       const stored = await storage.save(spec);
       const result = await executor.execute(stored, { a: 5, b: 3 });
 
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.output).toEqual({ sum: 8, product: 15 });
       expect(result.executionTime).toBeGreaterThan(0);
     });
@@ -140,7 +140,7 @@ function main(args) {
       const stored = await storage.save(spec);
       const result = await executor.execute(stored, { text: 'hello' });
 
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.output).toEqual({ reversed: 'olleh' });
       expect(result.executionTime).toBeGreaterThan(0);
     });
@@ -160,7 +160,7 @@ def main():
       const stored = await storage.save(spec);
       const result = await executor.execute(stored, {});
 
-      expect(result.success).toBe(false);
+      expect(result.isError).toBe(true);
       expect(result.error).toContain('Test error');
     });
 
@@ -182,7 +182,7 @@ def main():
       const stored = await storage.save(spec);
       const result = await executor.execute(stored, {});
 
-      expect(result.success).toBe(false);
+      expect(result.isError).toBe(true);
       expect(result.error).toContain('timed out');
       // Allow 1ms tolerance for timing precision
       expect(result.executionTime).toBeGreaterThanOrEqual(499);
@@ -208,12 +208,12 @@ def main():
 
       // Missing required parameter
       const result1 = await executor.execute(stored, {});
-      expect(result1.success).toBe(false);
+      expect(result1.isError).toBe(true);
       expect(result1.error).toContain('required');
 
       // Wrong type
       const result2 = await executor.execute(stored, { x: 'not a number' });
-      expect(result2.success).toBe(false);
+      expect(result2.isError).toBe(true);
       expect(result2.error).toContain('must be number');
     });
   });
@@ -241,7 +241,7 @@ def main():
       const result = await executor.execute(stored, { a: 10, b: 20 });
 
       // The optimized path should still produce correct results
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.output).toEqual({ sum: 30, product: 200 });
     });
   });

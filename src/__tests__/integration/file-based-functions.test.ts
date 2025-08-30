@@ -227,10 +227,10 @@ def main(a, b):
       });
 
       const result = await toolManager.executeTool('math_ops', { a: 5, b: 3 });
-      if (!result.success) {
+      if (result.isError) {
         console.error('Python execution failed:', result.error);
       }
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.output).toEqual({ sum: 8, product: 15 });
     });
 
@@ -265,10 +265,10 @@ module.exports = { main };
       });
 
       const result = await toolManager.executeTool('text_ops', { text: 'hello' });
-      if (!result.success) {
+      if (result.isError) {
         console.error('JavaScript execution failed:', result.error);
       }
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.output).toEqual({
         uppercase: 'HELLO',
         length: 5,
@@ -306,7 +306,7 @@ module.exports = { main };`;
       });
 
       const result = JSON.parse(response.content[0].text);
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.sourceCode).toBe(sourceCode);
       expect(result.language).toBe('javascript');
     });
@@ -345,7 +345,7 @@ module.exports = { main };`;
       });
 
       const result = JSON.parse(response.content[0].text);
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.tool).toBeDefined();
       expect(result.tool.name).toBe('factorial');
       expect(result.tool.description).toBe('Calculate factorial');
@@ -357,17 +357,15 @@ module.exports = { main };`;
       expect(result.tool.sourceCode).toBe(sourceCode);
     });
 
-    it('should return error for non-existent tool', async () => {
-      const response = await toolManager.handleToolCall({
-        params: {
-          name: 'view_source',
-          arguments: { name: 'non_existent' },
-        },
-      });
-
-      const result = JSON.parse(response.content[0].text);
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('Tool "non_existent" not found');
+    it('should throw error for non-existent tool', async () => {
+      await expect(
+        toolManager.handleToolCall({
+          params: {
+            name: 'view_source',
+            arguments: { name: 'non_existent' },
+          },
+        })
+      ).rejects.toThrow('Tool "non_existent" not found');
     });
   });
 
@@ -466,7 +464,7 @@ def helper():
       expect(result.codePath).toBeUndefined();
 
       const execResult = await toolManager.executeTool('inline_func', { x: 5 });
-      expect(execResult.success).toBe(true);
+      expect(execResult.isError).toBeUndefined();
       expect(execResult.output).toBe(10);
     });
 
@@ -512,7 +510,7 @@ def helper():
       logger.info('IR:', inlineResult);
       const fileResult = await toolManager.executeTool('file_multiply', { a: 3, b: 4 });
       logger.info('FR:', fileResult);
-      if (!fileResult.success) {
+      if (fileResult.isError) {
         console.error('File multiply execution failed:', fileResult.error);
       }
       expect(fileResult.output).toBe(12);

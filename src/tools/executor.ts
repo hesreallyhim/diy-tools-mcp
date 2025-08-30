@@ -53,16 +53,16 @@ export class FunctionExecutor {
     } catch (error) {
       if (error instanceof Error) {
         return {
-          success: false,
           error: error.message,
           executionTime: 0,
+          isError: true,
         };
       }
 
       return {
-        success: false,
         error: 'Unknown error occurred',
         executionTime: 0,
+        isError: true,
       };
     }
   }
@@ -92,9 +92,9 @@ export class FunctionExecutor {
       if (timeoutId) clearTimeout(timeoutId);
       if (error instanceof Error && error.message === 'Function execution timed out') {
         return {
-          success: false,
           error: `Execution timed out after ${timeout}ms`,
           executionTime: timeout,
+          isError: true,
         };
       }
       throw error;

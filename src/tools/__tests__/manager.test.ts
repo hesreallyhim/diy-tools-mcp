@@ -260,7 +260,7 @@ def main(x):
       await manager.addTool(spec);
       const result = await manager.executeTool('exec_inline', { x: 5 });
 
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.output).toEqual({ doubled: 10 });
     });
 
@@ -278,15 +278,14 @@ def main(x):
       await manager.addTool(spec);
       const result = await manager.executeTool('exec_file', {});
 
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.output).toEqual({ status: 'ok' });
     });
 
-    it('should return error for non-existent tool', async () => {
-      const result = await manager.executeTool('does_not_exist', {});
-
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('not found');
+    it('should throw error for non-existent tool', async () => {
+      await expect(manager.executeTool('does_not_exist', {})).rejects.toThrow(
+        'Tool "does_not_exist" not found'
+      );
     });
   });
 
@@ -306,9 +305,9 @@ def main(x):
       expect(removed).toBe(true);
 
       // Verify tool is gone
-      const result = await manager.executeTool('remove_test', {});
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('not found');
+      await expect(manager.executeTool('remove_test', {})).rejects.toThrow(
+        'Tool "remove_test" not found'
+      );
     });
 
     it('should return false for non-existent tool', async () => {
@@ -353,7 +352,7 @@ def main(x):
       });
 
       const result = JSON.parse(response.content[0].text);
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.name).toBe('inline_view_test');
       expect(result.language).toBe('python');
       expect(result.sourceCode).toBe('def main(x):\n    return x * 2');
@@ -387,7 +386,7 @@ def main(x):
       });
 
       const result = JSON.parse(response.content[0].text);
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.tool).toBeDefined();
       expect(result.tool.name).toBe('inline_verbose_test');
       expect(result.tool.description).toBe('Test viewing inline source with verbose');
@@ -420,7 +419,7 @@ def main(x):
       });
 
       const result = JSON.parse(response.content[0].text);
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.name).toBe('file_view_test');
       expect(result.language).toBe('python');
       expect(result.sourceCode).toContain('def main()');
@@ -445,24 +444,22 @@ def main(x):
       });
 
       const result = JSON.parse(response.content[0].text);
-      expect(result.success).toBe(true);
+      expect(result.isError).toBeUndefined();
       expect(result.tool).toBeDefined();
       expect(result.tool.isFileBased).toBe(true);
       expect(result.tool.codePath).toContain('function-code');
       expect(result.tool.sourceCode).toContain('function main(args)');
     });
 
-    it('should return error for non-existent tool', async () => {
-      const response = await manager.handleToolCall({
-        params: {
-          name: 'view_source',
-          arguments: { name: 'does_not_exist' },
-        },
-      });
-
-      const result = JSON.parse(response.content[0].text);
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('Tool "does_not_exist" not found');
+    it('should throw error for non-existent tool', async () => {
+      await expect(
+        manager.handleToolCall({
+          params: {
+            name: 'view_source',
+            arguments: { name: 'does_not_exist' },
+          },
+        })
+      ).rejects.toThrow('Tool "does_not_exist" not found');
     });
   });
 });

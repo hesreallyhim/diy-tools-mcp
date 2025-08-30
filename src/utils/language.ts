@@ -133,29 +133,26 @@ class PythonExecutor extends BaseExecutor {
         }
 
         return {
-          success: false,
           error: errorMsg,
           executionTime: Date.now() - startTime,
+          isError: true,
         };
       }
 
       try {
         const result = JSON.parse(stdout);
         return {
-          success: true,
           output: result,
           executionTime: Date.now() - startTime,
         };
       } catch {
         return {
-          success: false,
           error: `Failed to parse result: ${stdout}`,
           executionTime: Date.now() - startTime,
         };
       }
     } catch {
       return {
-        success: false,
         error: 'Unknown error',
         executionTime: Date.now() - startTime,
       };
@@ -244,31 +241,29 @@ if __name__ == "__main__":
         }
 
         return {
-          success: false,
           error: errorMessage,
           executionTime,
+          isError: true,
         };
       }
 
       try {
         const output = JSON.parse(stdout);
         return {
-          success: true,
           output,
           executionTime,
         };
       } catch {
         return {
-          success: true,
           output: stdout.trim(),
           executionTime,
         };
       }
     } catch {
       return {
-        success: false,
         error: `Execution failed: Unknown error`,
         executionTime: Date.now() - startTime,
+        isError: true,
       };
     } finally {
       await this.cleanupTempFile(filepath);
@@ -337,29 +332,26 @@ try {
         }
 
         return {
-          success: false,
           error: errorMsg,
           executionTime: Date.now() - startTime,
+          isError: true,
         };
       }
 
       try {
         const result = JSON.parse(stdout);
         return {
-          success: true,
           output: result,
           executionTime: Date.now() - startTime,
         };
       } catch {
         return {
-          success: true,
           output: stdout.trim(),
           executionTime: Date.now() - startTime,
         };
       }
     } catch {
       return {
-        success: false,
         error: 'Unknown error',
         executionTime: Date.now() - startTime,
       };
@@ -465,31 +457,29 @@ if (!entryFunc) {
         }
 
         return {
-          success: false,
           error: errorMessage,
           executionTime,
+          isError: true,
         };
       }
 
       try {
         const output = JSON.parse(stdout);
         return {
-          success: true,
           output,
           executionTime,
         };
       } catch {
         return {
-          success: true,
           output: stdout.trim(),
           executionTime,
         };
       }
     } catch {
       return {
-        success: false,
         error: `Execution failed: Unknown error`,
         executionTime: Date.now() - startTime,
+        isError: true,
       };
     } finally {
       await this.cleanupTempFile(filepath);
@@ -555,7 +545,6 @@ ${entryPoint} "$ARGS"
 
       if (exitCode !== 0) {
         return {
-          success: false,
           error: stderr || 'Bash execution failed',
           executionTime,
         };
@@ -565,22 +554,20 @@ ${entryPoint} "$ARGS"
       try {
         const output = JSON.parse(stdout);
         return {
-          success: true,
           output,
           executionTime,
         };
       } catch {
         return {
-          success: true,
           output: stdout.trim(),
           executionTime,
         };
       }
     } catch {
       return {
-        success: false,
         error: `Execution failed: Unknown error`,
         executionTime: Date.now() - startTime,
+        isError: true,
       };
     } finally {
       await this.cleanupTempFile(filepath);
@@ -659,31 +646,29 @@ end
         }
 
         return {
-          success: false,
           error: errorMessage,
           executionTime,
+          isError: true,
         };
       }
 
       try {
         const output = JSON.parse(stdout);
         return {
-          success: true,
           output,
           executionTime,
         };
       } catch {
         return {
-          success: true,
           output: stdout.trim(),
           executionTime,
         };
       }
     } catch {
       return {
-        success: false,
         error: `Execution failed: Unknown error`,
         executionTime: Date.now() - startTime,
+        isError: true,
       };
     } finally {
       await this.cleanupTempFile(filepath);

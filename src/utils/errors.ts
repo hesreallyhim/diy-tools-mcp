@@ -89,12 +89,24 @@ export class SecurityError extends DIYToolsError {
 }
 
 /**
- * Error thrown when registration fails
+ * Error thrown when registration fails due to invalid parameters
+ * This should result in an MCP protocol error
  */
 export class RegistrationError extends DIYToolsError {
   constructor(message: string, toolName?: string) {
     super(message, 'REGISTRATION_ERROR', 400, { toolName });
     this.name = 'RegistrationError';
+  }
+}
+
+/**
+ * Error thrown when code validation fails during registration
+ * This should be returned as a tool error, not MCP protocol error
+ */
+export class CodeValidationError extends DIYToolsError {
+  constructor(message: string, details?: unknown) {
+    super(message, 'CODE_VALIDATION_ERROR', 400, details);
+    this.name = 'CodeValidationError';
   }
 }
 

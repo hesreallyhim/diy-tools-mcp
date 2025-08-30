@@ -31,10 +31,10 @@ export interface StoredFunction extends FunctionSpecification {
 }
 
 export interface ExecutionResult {
-  success: boolean;
   output?: unknown;
   error?: string;
   executionTime?: number;
+  isError?: boolean; // True when tool execution failed (follows MCP SDK pattern)
 }
 
 export interface ValidationResult {

@@ -5,14 +5,26 @@ import {
   McpError,
   ListToolsRequestSchema,
   CallToolRequestSchema,
+  ListResourcesRequestSchema,
+  ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { ToolManager } from './tools/manager.js';
+import { ExampleResourceManager } from './resources/example-resources.js';
 import { logger, createCorrelationId } from './utils/logger.js';
-import { DIYToolsError, getUserFriendlyMessage } from './utils/errors.js';
+import { LoggingTransport } from './utils/transport-logger.js';
+import {
+  DIYToolsError,
+  getUserFriendlyMessage,
+  NotFoundError,
+  ValidationError,
+  SecurityError,
+  RegistrationError,
+} from './utils/errors.js';
 
 export class DIYToolsServer {
   private server: Server;
   private toolManager: ToolManager;
+  private resourceManager: ExampleResourceManager;
 
   constructor() {
     this.server = new Server(
@@ -23,11 +35,13 @@ export class DIYToolsServer {
       {
         capabilities: {
           tools: {},
+          resources: {},
         },
       }
     );
 
     this.toolManager = new ToolManager(this.server);
+    this.resourceManager = new ExampleResourceManager();
     this.setupHandlers();
   }
 
@@ -53,7 +67,7 @@ export class DIYToolsServer {
       try {
         const result = await this.toolManager.handleToolCall(request);
         logger.debug(`Tool call completed: ${toolName}`, { correlationId, success: true });
-        return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+        return result;
       } catch (error) {
         logger.error(`Tool call failed: ${toolName}`, {
           correlationId,
@@ -63,6 +77,19 @@ export class DIYToolsServer {
 
         if (error instanceof McpError) {
           throw error;
+        }
+
+        // Map specific error types to appropriate error codes
+        if (error instanceof NotFoundError) {
+          throw new McpError(ErrorCode.MethodNotFound, getUserFriendlyMessage(error));
+        }
+
+        if (
+          error instanceof ValidationError ||
+          error instanceof SecurityError ||
+          error instanceof RegistrationError
+        ) {
+          throw new McpError(ErrorCode.InvalidParams, getUserFriendlyMessage(error));
         }
 
         if (error instanceof DIYToolsError) {
@@ -75,6 +102,28 @@ export class DIYToolsServer {
         );
       }
     });
+
+    // Handle resource listing
+    this.server.setRequestHandler(ListResourcesRequestSchema, async () => {
+      return {
+        resources: this.resourceManager.listResources(),
+      };
+    });
+
+    // Handle resource reading
+    this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
+      const { uri } = request.params;
+      logger.debug(`Resource read requested: ${uri}`);
+
+      const content = await this.resourceManager.readResource(uri);
+      if (!content) {
+        throw new McpError(ErrorCode.InvalidRequest, `Resource not found: ${uri}`);
+      }
+
+      return {
+        contents: [content],
+      };
+    });
   }
 
   async start(): Promise<void> {
@@ -85,9 +134,14 @@ export class DIYToolsServer {
       await this.toolManager.initialize();
       logger.info('Tool manager initialized successfully');
 
-      // Create and run the transport
-      const transport = new StdioServerTransport();
-      await this.server.connect(transport);
+      // Initialize resource manager (load example resources)
+      await this.resourceManager.initialize();
+      logger.info('Resource manager initialized successfully');
+
+      // Create and run the transport with logging
+      const stdioTransport = new StdioServerTransport();
+      const loggingTransport = new LoggingTransport(stdioTransport);
+      await this.server.connect(loggingTransport);
 
       logger.info('DIY Tools MCP server started successfully', {
         version: '1.0.0',

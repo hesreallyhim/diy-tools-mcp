@@ -7,6 +7,7 @@ import {
   isInlineFunction,
 } from '../types/index.js';
 import { v4 as uuidv4 } from 'uuid';
+import { logger } from '../utils/logger.js';
 
 const FUNCTIONS_DIR = join(process.cwd(), 'functions');
 const FUNCTION_CODE_DIR = join(process.cwd(), 'function-code');
@@ -158,7 +159,7 @@ export class FunctionStorage {
             const content = await readFile(join(FUNCTIONS_DIR, file), 'utf-8');
             return JSON.parse(content) as StoredFunction;
           } catch {
-            console.error(`Failed to load function from ${file}`);
+            logger.error(`Failed to load function from ${file}`);
             return null;
           }
         })
@@ -166,7 +167,7 @@ export class FunctionStorage {
 
       return functions.filter((f): f is StoredFunction => f !== null);
     } catch {
-      console.error('Failed to load functions');
+      logger.error('Failed to load functions');
       return [];
     }
   }

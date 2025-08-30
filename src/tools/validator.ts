@@ -8,6 +8,7 @@ import {
   FunctionArgs,
 } from '../types/index.js';
 import { getExecutor, isSupportedLanguage } from '../utils/language.js';
+import { CodeValidationError } from '../utils/errors.js';
 import { TIMEOUTS } from '../constants.js';
 
 const AjvConstructor = Ajv as unknown as typeof Ajv.default;
@@ -90,7 +91,7 @@ export class FunctionValidator {
 
       const validationResult = await executor.validate(spec.code || '', spec.entryPoint);
       if (!validationResult.valid) {
-        throw new ValidationError(
+        throw new CodeValidationError(
           `Code validation failed: ${validationResult.errors?.join(', ') || 'Unknown error'}`
         );
       }

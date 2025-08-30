@@ -14,11 +14,12 @@
     "package.json"
   ],
   "scripts": {
-    "build": "tsc && chmod +x dist/index.js",
+    "build": "tsc && copyfiles examples/**/* dist/resources/",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "clean": "rm -rf dist coverage *.tsbuildinfo",
     "clean:all": "npm run clean && rm -rf node_modules functions function-code test-*",
+    "inspect": "npm run build && npx -y @modelcontextprotocol/inspector@latest node dist/index.js",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --runInBand",
     "test:watch": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --watch",
     "test:coverage": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --coverage",
@@ -71,6 +72,7 @@
     "@types/winston": "^2.4.4",
     "@typescript-eslint/eslint-plugin": "^8.39.1",
     "@typescript-eslint/parser": "^8.39.1",
+    "copyfiles": "^2.4.1",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",

@@ -7,6 +7,7 @@ import {
   ExecutionResult,
   FunctionArgs,
 } from '../types/index.js';
+import { CodeValidationError } from '../utils/errors.js';
 import { JSONSchema7 } from 'json-schema';
 import { FunctionStorage } from '../storage/functions.js';
 import { FunctionValidator } from './validator.js';
@@ -19,7 +20,7 @@ import {
   logFunctionExecution,
   createCorrelationId,
 } from '../utils/logger.js';
-import { ExecutionError } from '../utils/errors.js';
+import { NotFoundError } from '../utils/errors.js';
 
 export class ToolManager {
   private storage: FunctionStorage;
@@ -42,7 +43,7 @@ export class ToolManager {
       try {
         await this.registerTool(func, false); // Don't notify during initialization
       } catch (error) {
-        console.error(`Failed to register tool ${func.name}:`, error);
+        logger.error(`Failed to register tool ${func.name}:`, error);
       }
     }
   }
@@ -105,7 +106,7 @@ export class ToolManager {
       });
     } catch (error) {
       // Ignore notification errors (e.g., when server is not connected)
-      console.error('Failed to send tools/listChanged notification:', error);
+      logger.error('Failed to send tools/listChanged notification:', error);
     }
 
     return true;
@@ -120,11 +121,7 @@ export class ToolManager {
     if (!tool) {
       const error = `Tool "${name}" not found`;
       logger.warn(error, { tool: name, correlationId });
-      return {
-        success: false,
-        error,
-        executionTime: 0,
-      };
+      throw new NotFoundError(error, name);
     }
 
     const startTime = Date.now();
@@ -134,7 +131,7 @@ export class ToolManager {
       const result = await this.executor.execute(tool, args);
       const duration = Date.now() - startTime;
 
-      logFunctionExecution(name, duration, result.success, undefined, correlationId);
+      logFunctionExecution(name, duration, !result.isError, undefined, correlationId);
 
       return result;
     } catch (error) {
@@ -299,6 +296,21 @@ export class ToolManager {
             correlationId: correlationId,
             error: error instanceof Error ? error.message : 'Unknown error',
           });
+
+          // Code validation errors should be returned as tool errors
+          if (error instanceof CodeValidationError) {
+            return {
+              content: [
+                {
+                  type: 'text' as const,
+                  text: error.message,
+                },
+              ],
+              isError: true,
+            };
+          }
+
+          // All other errors (RegistrationError, ValidationError, etc.) are MCP protocol errors
           throw error;
         }
       }
@@ -344,17 +356,7 @@ export class ToolManager {
         const tool = this.registeredTools.get(toolName);
 
         if (!tool) {
-          return {
-            content: [
-              {
-                type: 'text' as const,
-                text: JSON.stringify({
-                  success: false,
-                  error: `Tool "${toolName}" not found`,
-                }),
-              },
-            ],
-          };
+          throw new NotFoundError(`Tool "${toolName}" not found`, toolName);
         }
 
         // Load the source code
@@ -405,9 +407,20 @@ export class ToolManager {
       default: {
         // Execute custom tool
         const result = await this.executeTool(name, args, correlationId);
-        if (!result.success) {
-          throw new ExecutionError(result.error || 'Execution failed');
+
+        // If the tool execution failed, return with isError flag
+        if (result.isError) {
+          return {
+            content: [
+              {
+                type: 'text' as const,
+                text: result.error || 'Tool execution failed',
+              },
+            ],
+            isError: true,
+          };
         }
+
         return {
           content: [
             {
@@ -431,7 +444,7 @@ export class ToolManager {
         });
       } catch (error) {
         // Ignore notification errors (e.g., when server is not connected)
-        console.error('Failed to send tools/listChanged notification:', error);
+        logger.error('Failed to send tools/listChanged notification:', error);
       }
     }
   }
