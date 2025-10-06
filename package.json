@@ -60,7 +60,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "ajv": "^8.17.1",
-    "uuid": "^11.0.4",
+    "uuid": "^13.0.0",
     "winston": "^3.17.0"
   },
   "devDependencies": {
