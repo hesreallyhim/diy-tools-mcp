@@ -81,12 +81,12 @@
     "jest": "^30.2.0",
     "lint-staged": "^16.1.5",
     "prettier": "^3.6.2",
-    "ts-jest": "^29.4.1",
+    "ts-jest": "^29.4.6",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx}": [
