@@ -5,6 +5,8 @@ import { randomUUID } from 'crypto';
 const logLevel = process.env.LOG_LEVEL || 'info';
 const debugMode = process.env.DEBUG === 'true';
 const isProduction = process.env.NODE_ENV === 'production';
+const isTest = process.env.NODE_ENV === 'test';
+const enableTestLogging = process.env.LOG_IN_TEST === 'true';
 
 // Custom format for console output
 const consoleFormat = winston.format.combine(
@@ -19,6 +21,17 @@ const consoleFormat = winston.format.combine(
   })
 );
 
+// Default: silence transports in tests to avoid lingering handles; enable with LOG_IN_TEST=true.
+const transports =
+  isTest && !enableTestLogging
+    ? []
+    : [
+        new winston.transports.Console({
+          format: isProduction ? winston.format.json() : consoleFormat,
+          stderrLevels: ['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly'], // All levels to stderr
+        }),
+      ];
+
 // Create the logger instance
 export const logger = winston.createLogger({
   level: debugMode ? 'debug' : logLevel,
@@ -28,12 +41,8 @@ export const logger = winston.createLogger({
     winston.format.json()
   ),
   defaultMeta: { service: 'diy-tools-mcp' },
-  transports: [
-    new winston.transports.Console({
-      format: isProduction ? winston.format.json() : consoleFormat,
-      stderrLevels: ['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly'], // All levels to stderr
-    }),
-  ],
+  transports,
+  silent: isTest && !enableTestLogging,
 });
 
 // Add file transport in production
@@ -155,9 +164,11 @@ export function sanitizeLogData(data: unknown): unknown {
   return data;
 }
 
-// Log startup message
-logger.info('DIY Tools MCP Server logger initialized', {
-  logLevel: logger.level,
-  debugMode,
-  isProduction,
-});
+// Log startup message when not suppressed
+if (!logger.silent) {
+  logger.info('DIY Tools MCP Server logger initialized', {
+    logLevel: logger.level,
+    debugMode,
+    isProduction,
+  });
+}

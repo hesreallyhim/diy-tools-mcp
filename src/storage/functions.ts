@@ -9,8 +9,8 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger.js';
 
-const FUNCTIONS_DIR = join(process.cwd(), 'functions');
-const FUNCTION_CODE_DIR = join(process.cwd(), 'function-code');
+const getFunctionsDir = () => join(process.cwd(), 'functions');
+const getFunctionCodeDir = () => join(process.cwd(), 'function-code');
 
 export class FunctionStorage {
   constructor() {
@@ -18,18 +18,21 @@ export class FunctionStorage {
   }
 
   private async ensureDirectoriesExist(): Promise<void> {
+    const functionsDir = getFunctionsDir();
+    const functionCodeDir = getFunctionCodeDir();
+
     // Check and create FUNCTIONS_DIR if needed
     try {
-      await access(FUNCTIONS_DIR);
+      await access(functionsDir);
     } catch {
-      await mkdir(FUNCTIONS_DIR, { recursive: true });
+      await mkdir(functionsDir, { recursive: true });
     }
 
     // Check and create FUNCTION_CODE_DIR if needed
     try {
-      await access(FUNCTION_CODE_DIR);
+      await access(functionCodeDir);
     } catch {
-      await mkdir(FUNCTION_CODE_DIR, { recursive: true });
+      await mkdir(functionCodeDir, { recursive: true });
     }
   }
 
@@ -61,7 +64,7 @@ export class FunctionStorage {
       const sourceFile = resolve(spec.codePath);
       // Preserve the original file extension
       const ext = sourceFile.substring(sourceFile.lastIndexOf('.') + 1);
-      const destFile = join(FUNCTION_CODE_DIR, `${spec.name}.${ext}`);
+      const destFile = join(getFunctionCodeDir(), `${spec.name}.${ext}`);
 
       // Copy the file to our managed directory
       await copyFile(sourceFile, destFile);
@@ -79,7 +82,7 @@ export class FunctionStorage {
     };
 
     const filename = `${spec.name}.json`;
-    const filepath = join(FUNCTIONS_DIR, filename);
+    const filepath = join(getFunctionsDir(), filename);
 
     await writeFile(filepath, JSON.stringify(storedFunction, null, 2));
 
@@ -99,7 +102,7 @@ export class FunctionStorage {
       const sourceFile = resolve(spec.codePath);
       // Preserve the original file extension
       const ext = sourceFile.substring(sourceFile.lastIndexOf('.') + 1);
-      const destFile = join(FUNCTION_CODE_DIR, `${spec.name}.${ext}`);
+      const destFile = join(getFunctionCodeDir(), `${spec.name}.${ext}`);
 
       await copyFile(sourceFile, destFile);
       finalSpec.codePath = `function-code/${spec.name}.${ext}`;
@@ -110,7 +113,7 @@ export class FunctionStorage {
     if (isInlineFunction(spec) && existing.codePath) {
       // Extract extension from existing codePath
       const ext = existing.codePath.substring(existing.codePath.lastIndexOf('.') + 1);
-      const codeFile = join(FUNCTION_CODE_DIR, `${name}.${ext}`);
+      const codeFile = join(getFunctionCodeDir(), `${name}.${ext}`);
       try {
         await unlink(codeFile);
       } catch {
@@ -127,7 +130,7 @@ export class FunctionStorage {
     };
 
     const filename = `${name}.json`;
-    const filepath = join(FUNCTIONS_DIR, filename);
+    const filepath = join(getFunctionsDir(), filename);
 
     await writeFile(filepath, JSON.stringify(updated, null, 2));
 
@@ -137,7 +140,7 @@ export class FunctionStorage {
   async load(name: string): Promise<StoredFunction | null> {
     try {
       const filename = `${name}.json`;
-      const filepath = join(FUNCTIONS_DIR, filename);
+      const filepath = join(getFunctionsDir(), filename);
 
       const content = await readFile(filepath, 'utf-8');
       return JSON.parse(content) as StoredFunction;
@@ -150,13 +153,13 @@ export class FunctionStorage {
     await this.ensureDirectoriesExist();
 
     try {
-      const files = await readdir(FUNCTIONS_DIR);
+      const files = await readdir(getFunctionsDir());
       const jsonFiles = files.filter((f) => f.endsWith('.json'));
 
       const functions = await Promise.all(
         jsonFiles.map(async (file) => {
           try {
-            const content = await readFile(join(FUNCTIONS_DIR, file), 'utf-8');
+            const content = await readFile(join(getFunctionsDir(), file), 'utf-8');
             return JSON.parse(content) as StoredFunction;
           } catch {
             logger.error(`Failed to load function from ${file}`);
@@ -179,14 +182,14 @@ export class FunctionStorage {
 
       // Delete the metadata file
       const filename = `${name}.json`;
-      const filepath = join(FUNCTIONS_DIR, filename);
+      const filepath = join(getFunctionsDir(), filename);
       await unlink(filepath);
 
       // If it's a file-based function, delete the code file too
       if (func && func.codePath) {
         // Extract extension from codePath
         const ext = func.codePath.substring(func.codePath.lastIndexOf('.') + 1);
-        const codeFile = join(FUNCTION_CODE_DIR, `${name}.${ext}`);
+        const codeFile = join(getFunctionCodeDir(), `${name}.${ext}`);
         try {
           await unlink(codeFile);
         } catch {
@@ -215,7 +218,7 @@ export class FunctionStorage {
 
   async exists(name: string): Promise<boolean> {
     const filename = `${name}.json`;
-    const filepath = join(FUNCTIONS_DIR, filename);
+    const filepath = join(getFunctionsDir(), filename);
     try {
       await access(filepath);
       return true;

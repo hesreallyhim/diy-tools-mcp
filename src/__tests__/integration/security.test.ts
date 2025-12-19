@@ -1,17 +1,24 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, jest } from '@jest/globals';
 import { ToolManager } from '../../tools/manager.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { writeFile, mkdir, rm, symlink } from 'fs/promises';
+import { writeFile, mkdir, rm, symlink, mkdtemp } from 'fs/promises';
 import { join } from 'path';
 import { logger } from '../../utils/logger.js';
+import { tmpdir } from 'os';
 // import { FunctionSpecification } from '../../types/index.js';
 
 describe('Security Integration Tests', () => {
   let toolManager: ToolManager;
   let mockServer: Server;
-  const testDir = join(process.cwd(), 'test-security-integration');
+  let originalCwd: string;
+  let tempDir: string;
+  let testDir: string;
 
   beforeAll(async () => {
+    originalCwd = process.cwd();
+    tempDir = await mkdtemp(join(tmpdir(), 'diy-tools-sec-int-'));
+    process.chdir(tempDir);
+    testDir = join(process.cwd(), 'test-security-integration');
     // Create test directory
     await mkdir(testDir, { recursive: true });
   });
@@ -42,6 +49,9 @@ describe('Security Integration Tests', () => {
     } catch {
       // Ignore errors
     }
+
+    process.chdir(originalCwd);
+    await rm(tempDir, { recursive: true, force: true });
   });
 
   beforeEach(async () => {

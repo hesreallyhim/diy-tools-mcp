@@ -2,18 +2,30 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach, jest } from '@je
 import { ToolManager } from '../manager.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { FunctionSpecification } from '../../types/index.js';
-import { writeFile, rm, mkdir } from 'fs/promises';
+import { writeFile, rm, mkdir, mkdtemp } from 'fs/promises';
 import { join } from 'path';
+import { tmpdir } from 'os';
 
 describe('ToolManager', () => {
   let manager: ToolManager;
   let mockServer: Server;
-  const testDir = join(process.cwd(), 'test-manager-functions');
-  const pythonFile = join(testDir, 'test.py');
-  const jsFile = join(testDir, 'test.js');
-  const largeFile = join(testDir, 'large.py');
+  let originalCwd: string;
+  let tempDir: string;
+  let testDir: string;
+  let pythonFile: string;
+  let jsFile: string;
+  let largeFile: string;
 
   beforeAll(async () => {
+    originalCwd = process.cwd();
+    tempDir = await mkdtemp(join(tmpdir(), 'diy-tools-manager-'));
+    process.chdir(tempDir);
+
+    testDir = join(process.cwd(), 'test-manager-functions');
+    pythonFile = join(testDir, 'test.py');
+    jsFile = join(testDir, 'test.js');
+    largeFile = join(testDir, 'large.py');
+
     // Create test directory and files
     await mkdir(testDir, { recursive: true });
 
@@ -59,6 +71,8 @@ module.exports = { main };
     await rm(testDir, { recursive: true, force: true });
     await rm(join(process.cwd(), 'functions'), { recursive: true, force: true });
     await rm(join(process.cwd(), 'function-code'), { recursive: true, force: true });
+    process.chdir(originalCwd);
+    await rm(tempDir, { recursive: true, force: true });
   });
 
   beforeEach(async () => {

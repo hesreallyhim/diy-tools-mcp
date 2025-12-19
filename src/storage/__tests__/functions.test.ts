@@ -1,16 +1,26 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 import { FunctionStorage } from '../functions.js';
 import { FunctionSpecification, isFileBasedFunction, isInlineFunction } from '../../types/index.js';
-import { writeFile, rm, mkdir } from 'fs/promises';
+import { writeFile, rm, mkdir, mkdtemp } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
+import { tmpdir } from 'os';
 
 describe('FunctionStorage', () => {
   let storage: FunctionStorage;
-  const testDir = join(process.cwd(), 'test-functions');
-  const testFile = join(testDir, 'test_function.py');
+  let originalCwd: string;
+  let tempDir: string;
+  let testDir: string;
+  let testFile: string;
 
   beforeAll(async () => {
+    originalCwd = process.cwd();
+    tempDir = await mkdtemp(join(tmpdir(), 'diy-tools-storage-'));
+    process.chdir(tempDir);
+
+    testDir = join(process.cwd(), 'test-functions');
+    testFile = join(testDir, 'test_function.py');
+
     // Create test directory and file
     await mkdir(testDir, { recursive: true });
     await writeFile(
@@ -38,6 +48,12 @@ def main(x, y):
       await rm(join(process.cwd(), 'function-code'), { recursive: true, force: true });
     } catch {
       // Ignore if already deleted
+    }
+    process.chdir(originalCwd);
+    try {
+      await rm(tempDir, { recursive: true, force: true });
+    } catch {
+      // Ignore cleanup errors
     }
   });
 

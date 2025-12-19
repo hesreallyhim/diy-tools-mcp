@@ -1,25 +1,46 @@
 import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 import { SecurityValidator } from '../security.js';
-import { writeFile, mkdir, rm, symlink } from 'fs/promises';
+import { writeFile, mkdir, rm, symlink, mkdtemp } from 'fs/promises';
 import { join } from 'path';
+import { tmpdir } from 'os';
 // import { RegistrationError } from '../../types/index.js';
 
 describe('SecurityValidator', () => {
-  const testDir = join(process.cwd(), 'test-security');
-  const validPythonFile = join(testDir, 'valid.py');
-  const validJsFile = join(testDir, 'valid.js');
-  const validTsFile = join(testDir, 'valid.ts');
-  const validBashFile = join(testDir, 'valid.sh');
-  const validRubyFile = join(testDir, 'valid.rb');
-  const emptyFile = join(testDir, 'empty.py');
-  const noMainFile = join(testDir, 'no_main.py');
-  const dangerousFile = join(testDir, 'dangerous.py');
-  const _traversalFile = join(testDir, '../traversal.py');
-  const symlinkFile = join(testDir, 'symlink.py');
-  const _largeFile = join(testDir, 'large.py');
-  const wrongExtFile = join(testDir, 'wrong.txt');
+  let originalCwd: string;
+  let tempDir: string;
+  let testDir: string;
+  let validPythonFile: string;
+  let validJsFile: string;
+  let validTsFile: string;
+  let validBashFile: string;
+  let validRubyFile: string;
+  let emptyFile: string;
+  let noMainFile: string;
+  let dangerousFile: string;
+  let _traversalFile: string;
+  let symlinkFile: string;
+  let _largeFile: string;
+  let wrongExtFile: string;
 
   beforeAll(async () => {
+    originalCwd = process.cwd();
+    tempDir = await mkdtemp(join(tmpdir(), 'diy-tools-security-'));
+    process.chdir(tempDir);
+
+    testDir = join(process.cwd(), 'test-security');
+    validPythonFile = join(testDir, 'valid.py');
+    validJsFile = join(testDir, 'valid.js');
+    validTsFile = join(testDir, 'valid.ts');
+    validBashFile = join(testDir, 'valid.sh');
+    validRubyFile = join(testDir, 'valid.rb');
+    emptyFile = join(testDir, 'empty.py');
+    noMainFile = join(testDir, 'no_main.py');
+    dangerousFile = join(testDir, 'dangerous.py');
+    _traversalFile = join(testDir, '../traversal.py');
+    symlinkFile = join(testDir, 'symlink.py');
+    _largeFile = join(testDir, 'large.py');
+    wrongExtFile = join(testDir, 'wrong.txt');
+
     await mkdir(testDir, { recursive: true });
 
     // Valid Python file
@@ -117,6 +138,8 @@ def main():
 
   afterAll(async () => {
     await rm(testDir, { recursive: true, force: true });
+    process.chdir(originalCwd);
+    await rm(tempDir, { recursive: true, force: true });
   });
 
   describe('Valid files', () => {

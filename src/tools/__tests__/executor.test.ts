@@ -2,17 +2,28 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/glo
 import { FunctionExecutor } from '../executor.js';
 import { FunctionStorage } from '../../storage/functions.js';
 import { FunctionSpecification } from '../../types/index.js';
-import { writeFile, rm, mkdir } from 'fs/promises';
+import { writeFile, rm, mkdir, mkdtemp } from 'fs/promises';
 import { join } from 'path';
+import { tmpdir } from 'os';
 
 describe('FunctionExecutor', () => {
   let executor: FunctionExecutor;
   let storage: FunctionStorage;
-  const testDir = join(process.cwd(), 'test-executor-functions');
-  const pythonFile = join(testDir, 'add.py');
-  const jsFile = join(testDir, 'multiply.js');
+  let originalCwd: string;
+  let tempDir: string;
+  let testDir: string;
+  let pythonFile: string;
+  let jsFile: string;
 
   beforeAll(async () => {
+    originalCwd = process.cwd();
+    tempDir = await mkdtemp(join(tmpdir(), 'diy-tools-exec-'));
+    process.chdir(tempDir);
+
+    testDir = join(process.cwd(), 'test-executor-functions');
+    pythonFile = join(testDir, 'add.py');
+    jsFile = join(testDir, 'multiply.js');
+
     // Create test directory and files
     await mkdir(testDir, { recursive: true });
 
@@ -59,6 +70,8 @@ module.exports = { main };
     await rm(testDir, { recursive: true, force: true });
     await rm(join(process.cwd(), 'functions'), { recursive: true, force: true });
     await rm(join(process.cwd(), 'function-code'), { recursive: true, force: true });
+    process.chdir(originalCwd);
+    await rm(tempDir, { recursive: true, force: true });
   });
 
   beforeEach(() => {

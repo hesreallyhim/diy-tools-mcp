@@ -1,17 +1,24 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, jest } from '@jest/globals';
 import { ToolManager } from '../../tools/manager.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { writeFile, mkdir, rm } from 'fs/promises';
+import { writeFile, mkdir, rm, mkdtemp } from 'fs/promises';
 import { join } from 'path';
 import { FunctionSpecification } from '../../types/index.js';
 import { logger } from '../../utils/logger.js';
+import { tmpdir } from 'os';
 
 describe('File-Based Functions Integration', () => {
   let toolManager: ToolManager;
   let mockServer: Server;
-  const testDir = join(process.cwd(), 'test-integration-functions');
+  let originalCwd: string;
+  let tempDir: string;
+  let testDir: string;
 
   beforeAll(async () => {
+    originalCwd = process.cwd();
+    tempDir = await mkdtemp(join(tmpdir(), 'diy-tools-integration-'));
+    process.chdir(tempDir);
+    testDir = join(process.cwd(), 'test-integration-functions');
     // Create test directory
     await mkdir(testDir, { recursive: true });
   });
@@ -32,6 +39,12 @@ describe('File-Based Functions Integration', () => {
       await rm(join(process.cwd(), 'function-code'), { recursive: true, force: true });
     } catch {
       // Ignore if already deleted
+    }
+    process.chdir(originalCwd);
+    try {
+      await rm(tempDir, { recursive: true, force: true });
+    } catch {
+      // Ignore cleanup failures
     }
   });
 

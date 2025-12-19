@@ -2,15 +2,26 @@ import { describe, expect, it, beforeEach, afterEach } from '@jest/globals';
 import { FunctionExecutor } from '../../tools/executor.js';
 import { FunctionStorage } from '../../storage/functions.js';
 import { FunctionSpecification } from '../../types/index.js';
-import { rmdir } from 'fs/promises';
+import { rmdir, mkdtemp } from 'fs/promises';
 import { join } from 'path';
+import { tmpdir } from 'os';
 
 describe('Configurable Entry Points', () => {
   let executor: FunctionExecutor;
   let storage: FunctionStorage;
 
-  const FUNCTIONS_DIR = join(process.cwd(), 'functions');
-  const FUNCTION_CODE_DIR = join(process.cwd(), 'function-code');
+  let originalCwd: string;
+  let tempDir: string;
+  let FUNCTIONS_DIR: string;
+  let FUNCTION_CODE_DIR: string;
+
+  beforeAll(async () => {
+    originalCwd = process.cwd();
+    tempDir = await mkdtemp(join(tmpdir(), 'diy-tools-entry-'));
+    process.chdir(tempDir);
+    FUNCTIONS_DIR = join(process.cwd(), 'functions');
+    FUNCTION_CODE_DIR = join(process.cwd(), 'function-code');
+  });
 
   beforeEach(() => {
     executor = new FunctionExecutor();
@@ -25,6 +36,11 @@ describe('Configurable Entry Points', () => {
     } catch {
       // Ignore cleanup errors
     }
+  });
+
+  afterAll(async () => {
+    process.chdir(originalCwd);
+    await rmdir(tempDir, { recursive: true });
   });
 
   describe('Python Functions', () => {
