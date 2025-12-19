@@ -22,7 +22,7 @@
     "inspect": "npm run build && npx -y @modelcontextprotocol/inspector@latest node dist/index.js",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --runInBand",
     "test:watch": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --watch",
-    "test:coverage": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --coverage",
+    "test:coverage": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --coverage --runInBand",
     "test:unit": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --testPathIgnorePatterns=integration",
     "test:integration": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --testPathPattern=integration",
     "typecheck": "tsc --noEmit",
