@@ -5,6 +5,7 @@
 [![Node.js Version](https://img.shields.io/node/v/diy-tools-mcp.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 [![CI](https://github.com/hesreallyhim/diy-tools-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/hesreallyhim/diy-tools-mcp/actions/workflows/ci.yml)
+[![Verified on MseeP](https://mseep.ai/badge.svg)](https://mseep.ai/app/a3f05c40-4cc1-432d-b081-f5b418d00fd1)
 
 A Model Context Protocol (MCP) server that allows you to create custom tools/functions at runtime in any programming language and expose them to Claude or other MCP clients.
 
