@@ -2,7 +2,7 @@ import { describe, expect, it, beforeEach, afterEach } from '@jest/globals';
 import { FunctionExecutor } from '../../tools/executor.js';
 import { FunctionStorage } from '../../storage/functions.js';
 import { FunctionSpecification } from '../../types/index.js';
-import { rmdir, mkdtemp } from 'fs/promises';
+import { rm, mkdtemp } from 'fs/promises';
 import { join } from 'path';
 import { tmpdir } from 'os';
 
@@ -31,8 +31,8 @@ describe('Configurable Entry Points', () => {
   afterEach(async () => {
     // Clean up test directories
     try {
-      await rmdir(FUNCTIONS_DIR, { recursive: true });
-      await rmdir(FUNCTION_CODE_DIR, { recursive: true });
+      await rm(FUNCTIONS_DIR, { recursive: true });
+      await rm(FUNCTION_CODE_DIR, { recursive: true });
     } catch {
       // Ignore cleanup errors
     }
@@ -40,7 +40,7 @@ describe('Configurable Entry Points', () => {
 
   afterAll(async () => {
     process.chdir(originalCwd);
-    await rmdir(tempDir, { recursive: true });
+    await rm(tempDir, { recursive: true });
   });
 
   describe('Python Functions', () => {
