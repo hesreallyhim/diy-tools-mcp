@@ -1,12 +1,12 @@
 import { readFile, writeFile, readdir, mkdir, unlink, copyFile, access } from 'fs/promises';
 import { join, resolve } from 'path';
+import { randomUUID } from 'node:crypto';
 import {
   StoredFunction,
   FunctionSpecification,
   isFileBasedFunction,
   isInlineFunction,
 } from '../types/index.js';
-import { v4 as uuidv4 } from 'uuid';
 import { logger } from '../utils/logger.js';
 
 const getFunctionsDir = () => join(process.cwd(), 'functions');
@@ -76,7 +76,7 @@ export class FunctionStorage {
 
     const storedFunction: StoredFunction = {
       ...finalSpec,
-      id: uuidv4(),
+      id: randomUUID(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
