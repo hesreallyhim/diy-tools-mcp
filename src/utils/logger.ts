@@ -1,5 +1,5 @@
 import winston from 'winston';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 
 // Get configuration from environment variables
 const logLevel = process.env.LOG_LEVEL || 'info';
