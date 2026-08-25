@@ -1,7 +1,7 @@
 import { spawn } from 'child_process';
 import { writeFile, unlink } from 'fs/promises';
 import { join } from 'path';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import {
   LanguageExecutor,
   ExecutionResult,
@@ -88,7 +88,7 @@ abstract class BaseExecutor implements LanguageExecutor {
   }
 
   protected async createTempFile(content: string, extension: string): Promise<string> {
-    const filename = `${uuidv4()}.${extension}`;
+    const filename = `${randomUUID()}.${extension}`;
     const filepath = join(TEMP_DIR, filename);
     await writeFile(filepath, content);
     return filepath;

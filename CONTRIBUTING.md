@@ -51,7 +51,7 @@ Before creating a new issue, please:
 
 ### Prerequisites
 
-- **Node.js 18.0.0 or higher** (check with `node --version`)
+- **Node.js 22.22.1 or higher** (check with `node --version`)
 - **npm** package manager
 - **Git** for version control
 
@@ -248,8 +248,8 @@ All pull requests must pass automated checks:
 ### CI/CD Pipeline
 The project uses GitHub Actions for continuous integration:
 
-- **Node.js versions**: Tests run on Node.js 18.x and 20.x
-- **Operating system**: Tests run on Ubuntu latest
+- **Node.js versions**: Tests run on Node.js 22.x, 24.x, and 26.x
+- **Operating system**: Tests run on Ubuntu 24.04
 - **Automated reporting**: Coverage reports are uploaded to Codecov
 
 ## Development Workflow

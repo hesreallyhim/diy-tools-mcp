@@ -163,7 +163,7 @@ export class SecurityValidator {
   }
 
   private static validateMainFunction(content: string, language: SupportedLanguage): void {
-    let hasMainFunction = false;
+    let hasMainFunction: boolean;
 
     switch (language) {
       case 'python':
